@@ -131,7 +131,7 @@ EMAIL_PORT = 465
 EMAIL_USE_TLS = False
 EMAIL_USE_SSL = True
 EMAIL_HOST_USER = 'cognilabsco@gmail.com'
-EMAIL_HOST_PASSWORD = 'bnkz ztki hyyq kdrr'
+EMAIL_HOST_PASSWORD = 'bnkzztkihyyqkdrr'
 DEFAULT_FROM_EMAIL = 'cognilabsco@gmail.com'
 
 # Security settings
