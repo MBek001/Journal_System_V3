@@ -1,0 +1,155 @@
+<!-- journals.html -->
+
+{% extends 'base.html' %}
+
+{% block title %}Jurnallar | Akademik Jurnal Platforma{% endblock %}
+
+{% block content %}
+    <div class="journals-container">
+
+        <!-- Search Section - Mualliflar sahifasidagi dizayn bilan moslashtirilgan -->
+        <div class="container">
+            <form method="GET" action="{% url 'journals' %}" id="journal-search-form" class="search-box mx-auto">
+                <div class="input-group">
+                    <!-- name="q" muhim, chunki bu parametr viewga uzatiladi -->
+                    <input type="text" class="form-control" id="journal-search" name="q"
+                           value="{{ search_query|default:'' }}" placeholder="Jurnal nomi bo'yicha qidirish..."
+                           aria-label="Search journals">
+                    <button class="btn btn-primary" type="submit" id="journal-search-btn">
+                        <i class="fas fa-search me-1"></i> Qidirish
+                    </button>
+                </div>
+            </form>
+        </div>
+        <!-- End Search Section -->
+
+        <!-- Journal List Header -->
+        <div class="container mb-4">
+            <div class="d-flex justify-content-between align-items-center">
+                <!-- Agar sarlavha yoki statistika kerak bo'lsa, shu yerga qo'shing -->
+            </div>
+        </div>
+        <!-- End Journal List Header -->
+
+        <!-- Journal Grid -->
+        <div class="journals-grid" id="journals-grid">
+            <!-- journal_stats endi annotatsiya qilingan queryset -->
+            {% for journal in journal_stats %}
+                <div class="journal-card"
+                     data-disciplines="{% for discipline in journal.fan.all %}{{ discipline.name|lower }} {% endfor %}"
+                     data-year="{{ journal.first_issue_year|default:2025 }}"
+                     data-title="{{ journal.title|lower }}">
+                    <!-- Butun kartochkani bosish orqali o'tish -->
+                    <a href="{% url 'journal_detail' journal_slug=journal.url_slug %}"
+                       class="journal-card-link" style="display: block; text-decoration: none; color: inherit;">
+                        <div class="journal-cover">
+                            {% if journal.cover_image %}
+                                <img src="{{ journal.cover_image.url }}" alt="{{ journal.title }}">
+                            {% else %}
+                                <div class="placeholder-cover"
+                                     style="background-color: #006d77; height: 100%; display: flex; align-items: center; justify-content: center; color: white;">
+                                    Rasm yo'q
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="journal-info">
+                            <div>
+                                <div class="journal-meta">
+                                </div>
+                                <h2 class="journal-title">{{ journal.title }}</h2>
+                                {% if journal.description %}
+                                    <p class="journal-subtitle">{{ journal.description|safe|truncatewords:33 }}</p>
+                                {% elif journal.initials %}
+                                    <p class="journal-subtitle">{{ journal.initials }}</p>
+                                {% endif %}
+                            </div>
+
+                            <!-- Placeholder for buttons -->
+                            <div class="journal-actions">
+                                <a href="{% url 'journal_detail' journal_slug=journal.url_slug %}"
+                                   class="journal-btn btn-view">
+                                    <i class="fas fa-eye me-2"></i>
+                                    Jurnalni ko'rish
+                                </a>
+                                {% if journal.current_issue %}
+                                    <a href="{% url 'issue_detail' journal_slug=journal.url_slug year=journal.current_issue.year volume=journal.current_issue.volume number=journal.current_issue.number %}"
+                                       class="journal-btn btn-current">
+                                        Joriy son
+                                    </a>
+                                {% else %}
+                                    <span class="journal-btn btn-current disabled">Joriy son yo'q</span>
+                                {% endif %}
+
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            {% empty %}
+                <div class="col-12">
+                    <div class="alert alert-info">
+                        {% if search_query %}
+                            "{{ search_query }}" bo'yicha jurnallar topilmadi.
+                        {% else %}
+                            Hozirda faol jurnallar mavjud emas.
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        <!-- End Journal Grid -->
+
+        <!-- Sahifalash (Pagination) - Agar foydalansangiz, shu yerga qo'shing -->
+        <!--
+    {% if journal_stats.has_other_pages %}
+    <nav aria-label="Jurnallar sahifalash" class="mt-4">
+        <ul class="pagination justify-content-center">
+            {% if journal_stats.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ journal_stats.previous_page_number }}{% if search_query %}&q=
+            {{ search_query|urlencode }}{% endif %}">Oldingi</a>
+                </li>
+            {% else %}
+                <li class="page-item disabled"><span class="page-link">Oldingi</span></li>
+            {% endif %}
+
+            {% for num in journal_stats.paginator.page_range %}
+                {% if journal_stats.number == num %}
+                    <li class="page-item active" aria-current="page">
+                        <span class="page-link">{{ num }}</span>
+                    </li>
+                {% elif num > journal_stats.number|add:'-3' and num < journal_stats.number|add:'3' %}
+                     <li class="page-item">
+                        <a class="page-link" href="?page={{ num }}{% if search_query %}&q=
+            {{ search_query|urlencode }}{% endif %}">{{ num }}</a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+
+            {% if journal_stats.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ journal_stats.next_page_number }}{% if search_query %}&q=
+            {{ search_query|urlencode }}{% endif %}">Keyingi</a>
+                </li>
+            {% else %}
+                <li class="page-item disabled"><span class="page-link">Keyingi</span></li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+    -->
+        <!-- End Pagination -->
+
+    </div>
+{% endblock %}
+
+{% block extra_css %}
+    <style>
+        /* Agar sahifaga maxsus CSS kerak bo'lsa, shu yerga qo'shing */
+        /* Masalan, kartochka havolasidagi ranglarni bekor qilish */
+        .journal-card-link:hover .journal-title {
+            color: var(--primary-dark); /* CSS faylingizdagi o'zgaruvchilardan foydalaning */
+            text-decoration: underline;
+        }
+    </style>
+{% endblock %}

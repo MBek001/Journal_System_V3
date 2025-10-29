@@ -1,0 +1,236 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ page_title|default:"Barcha Maqolalar - Imfaktor" }}{% endblock %}
+
+{% block meta_description %}
+    {{ meta_description|default:"Imfaktor portalidagi barcha ilmiy maqolalar. O'zbek olimlari tomonidan yozilgan tadqiqot ishlari." }}{% endblock %}
+
+{% block meta_keywords %}ilmiy maqola, tadqiqot, o'zbek olimlari, akademik nashr{% endblock %}
+
+{% block content %}
+
+    <!-- Articles Header Section -->
+    <section class="articles-list-header">
+        <div class="container">
+            <div class="articles-header-content text-center">
+                {% if 'featured' in request.resolver_match.url_name %}
+                    <h1 class="articles-header-title">Tanlab Olingan Maqolalar</h1>
+                    <p class="articles-header-subtitle">Eng muhim va sifatli ilmiy tadqiqot ishlari</p>
+                {% elif 'open-access' in request.resolver_match.url_name %}
+                    <h1 class="articles-header-title">Ochiq Kirish Maqolalari</h1>
+                    <p class="articles-header-subtitle">Bepul yuklab olish mumkin bo'lgan maqolalar</p>
+                {% elif 'latest' in request.resolver_match.url_name %}
+                    <h1 class="articles-header-title">So'nggi Maqolalar</h1>
+                    <p class="articles-header-subtitle">Eng yangi nashr etilgan tadqiqot ishlari</p>
+                {% elif year %}
+                    <h1 class="articles-header-title">{{ year }} Yil Maqolalari</h1>
+                    <p class="articles-header-subtitle">{{ year }} yilda nashr etilgan barcha maqolalar</p>
+                {% else %}
+                    <h1 class="articles-header-title">Ilmiy Maqolalar</h1>
+                    <p class="articles-header-subtitle">O'zbek olimlari tomonidan yozilgan eng so'nggi tadqiqot
+                        ishlari</p>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+
+    <div class="container">
+        <!-- Search and Filters Box -->
+        <div class="content-box articles-filters-box">
+            <form method="GET" class="articles-filter-form" id="articles-filter-form">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="fas fa-search"></i>
+                            </span>
+                            <input type="text" class="form-control" name="search"
+                                   value="{{ search_query }}" placeholder="Maqola qidirish...">
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-select" name="journal">
+                            <option value="">Barcha jurnallar</option>
+                            {% for journal in journals %}
+                                <option value="{{ journal.id }}"
+                                        {% if journal_filter == journal.id|stringformat:"s" %}selected{% endif %}>
+                                    {{ journal.title }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-select" name="year">
+                            <option value="">Barcha yillar</option>
+                            {% for year_option in years %}
+                                <option value="{{ year_option.year }}"
+                                        {% if year_filter == year_option.year|stringformat:"s" %}selected{% endif %}>
+                                    {{ year_option.year }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-filter me-2"></i> Filtr
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Active Filters Display -->
+                {% if search_query or journal_filter or year_filter %}
+                    <div class="active-filters-display mt-3 pt-3 border-top">
+                        <strong>Aktiv filtrlar:</strong>
+                        {% if search_query %}
+                            <span class="filter-badge">
+                                <i class="fas fa-search me-1"></i>{{ search_query }}
+                            </span>
+                        {% endif %}
+                        {% if journal_filter %}
+                            {% for journal in journals %}
+                                {% if journal.id|stringformat:"s" == journal_filter %}
+                                    <span class="filter-badge">
+                                        <i class="fas fa-book me-1"></i>{{ journal.title }}
+                                    </span>
+                                {% endif %}
+                            {% endfor %}
+                        {% endif %}
+                        {% if year_filter %}
+                            <span class="filter-badge">
+                                <i class="fas fa-calendar me-1"></i>{{ year_filter }}
+                            </span>
+                        {% endif %}
+                        <a href="{% url 'articles_list' %}" class="btn btn-sm btn-outline-secondary ms-2 clear-filters">
+                            <i class="fas fa-times me-1"></i> Tozalash
+                        </a>
+                    </div>
+                {% endif %}
+            </form>
+        </div>
+
+
+        <!-- Articles List -->
+        {% if articles %}
+            <div class="articles-list-grid">
+                {% for article in articles %}
+                    <div class="article-card-item">
+                        <h3 class="article-card-title">
+                            <a href="{% url 'article_detail' article.id %}">{{ article.title }}</a>
+                        </h3>
+
+                        <div class="article-card-meta">
+                            <div class="meta-item">
+                                <i class="far fa-calendar"></i>
+                                <span>{{ article.date_published|date:"d.m.Y" }}</span>
+                            </div>
+                            {% if article.issue %}
+                                <div class="meta-item">
+                                    <i class="fas fa-book"></i>
+                                    <a href="{% url 'journal_detail' article.issue.journal.url_slug %}">{{ article.issue.journal.title }}</a>
+                                </div>
+                                <div class="meta-item">
+                                    <i class="far fa-file-alt"></i>
+                                    <span>Jild {{ article.issue.volume }}, Son {{ article.issue.number }}</span>
+                                </div>
+                            {% endif %}
+                            {% if article.views %}
+                                <div class="meta-item">
+                                    <i class="far fa-eye"></i>
+                                    <span>{{ article.views }} ko'rilgan</span>
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="article-card-authors">
+                            {% for author in article.authors.all %}
+                                <a href="{% url 'author_detail' author.id %}" class="author-tag-link">
+                                    <i class="fas fa-user me-1"></i>
+                                    {{ author.first_name }} {{ author.last_name }}
+                                </a>
+                            {% endfor %}
+                        </div>
+
+                        <div class="article-card-abstract">
+                            {{ article.abstract|safe|truncatewords:30 }}
+                        </div>
+                        <div class="article-card-actions">
+                            <a href="{% url 'article_detail' article.id %}" class="btn btn-primary btn-sm">
+                                <i class="fas fa-eye me-2"></i> Batafsil o'qish
+                            </a>
+                            {% if article.main_pdf %}
+                                <a href="{% url 'download_pdf' article.id %}" class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-download me-2"></i> PDF yuklab olish
+                                </a>
+                            {% endif %}
+                            {% if article.open_access %}
+                                <span class="badge bg-success">
+                                    <i class="fas fa-unlock me-1"></i> Ochiq kirish
+                                </span>
+                            {% endif %}
+                            {% if article.featured %}
+                                <span class="badge bg-warning text-dark">
+                                    <i class="fas fa-star me-1"></i> Tanlangan
+                                </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <!-- Pagination -->
+            {% if articles.has_other_pages %}
+                <nav aria-label="Maqolalar sahifalari" class="articles-pagination-wrapper">
+                    <ul class="pagination justify-content-center">
+                        {% if articles.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link"
+                                   href="?{% if search_query %}search={{ search_query }}&{% endif %}{% if journal_filter %}journal={{ journal_filter }}&{% endif %}{% if year_filter %}year={{ year_filter }}&{% endif %}page={{ articles.previous_page_number }}">
+                                    <i class="fas fa-chevron-left"></i> Oldingi
+                                </a>
+                            </li>
+                        {% endif %}
+
+                        {% for num in articles.paginator.page_range %}
+                            {% if articles.number == num %}
+                                <li class="page-item active">
+                                    <span class="page-link">{{ num }}</span>
+                                </li>
+                            {% elif num > articles.number|add:'-3' and num < articles.number|add:'3' %}
+                                <li class="page-item">
+                                    <a class="page-link"
+                                       href="?{% if search_query %}search={{ search_query }}&{% endif %}{% if journal_filter %}journal={{ journal_filter }}&{% endif %}{% if year_filter %}year={{ year_filter }}&{% endif %}page={{ num }}">{{ num }}</a>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if articles.has_next %}
+                            <li class="page-item">
+                                <a class="page-link"
+                                   href="?{% if search_query %}search={{ search_query }}&{% endif %}{% if journal_filter %}journal={{ journal_filter }}&{% endif %}{% if year_filter %}year={{ year_filter }}&{% endif %}page={{ articles.next_page_number }}">
+                                    Keyingi <i class="fas fa-chevron-right"></i>
+                                </a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            {% endif %}
+        {% else %}
+            <div class="no-articles-found">
+                <div class="content-box text-center p-5">
+                    <i class="fas fa-search fa-5x text-muted mb-4"></i>
+                    <h4 class="text-muted mb-3">Maqolalar topilmadi</h4>
+                    <p class="text-muted mb-4">Qidiruv shartlarini o'zgartirib qaytadan urinib ko'ring</p>
+                    <div class="d-flex justify-content-center gap-3 flex-wrap">
+                        <a href="{% url 'articles_list' %}" class="btn btn-primary">
+                            Barcha maqolalarni ko'rish
+                        </a>
+                        <a href="{% url 'featured_articles' %}" class="btn btn-outline-primary">
+                            Tanlangan maqolalar
+                        </a>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

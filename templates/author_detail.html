@@ -1,0 +1,219 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ page_title|default:"Muallif Profili - Imfaktor" }}{% endblock %}
+
+{% block meta_description %}{{ meta_description|default:"" }}{% endblock %}
+{% block meta_keywords %}{{ author.first_name }} {{ author.last_name }}, muallif, ilmiy maqola,
+    tadqiqotchi{% endblock %}
+
+{% block content %}
+    <div class="container mt-4 mb-5">
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'home' %}">Bosh sahifa</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'allauthors' %}">Mualliflar</a></li>
+                <li class="breadcrumb-item active"
+                    aria-current="page">{{ author.first_name }} {{ author.last_name }}</li>
+            </ol>
+        </nav>
+
+        <div class="row">
+            <!-- Author Profile Card -->
+            <div class="col-12 mb-4">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <div class="row align-items-center">
+                            <!-- Author Image -->
+                            <div class="col-md-3 text-center mb-4 mb-md-0">
+                                <div class="author-image-square mx-auto">
+                                    {% if author.photo %}
+                                        <img src="{{ author.photo.url }}" class="img-fluid rounded shadow-sm"
+                                             alt="{{ author.full_name }}">
+                                    {% else %}
+                                        <div class="placeholder-image-square d-flex align-items-center justify-content-center w-100 h-100 bg-primary text-white">
+                                            <span class="placeholder-text fw-bold fs-3">
+                                                {{ author.first_name|default:"?"|first|upper }}{{ author.last_name|default:""|first|upper }}
+                                            </span>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <!-- Author Details -->
+                            <div class="col-md-9">
+                                <h1 class="h3 mb-3">{{ author.full_name }}</h1>
+
+                                <!-- Academic Info -->
+                                <ul class="list-unstyled mb-3">
+                                    {% if author.academic_title %}
+                                        <li>
+                                            <i class="fas fa-user-graduate me-2 text-primary"></i> {{ author.academic_title }}
+                                        </li>
+                                    {% endif %}
+                                    {% if author.academic_degree %}
+                                        <li>
+                                            <i class="fas fa-certificate me-2 text-success"></i> {{ author.academic_degree }}
+                                        </li>
+                                    {% endif %}
+                                    {% if author.position %}
+                                        <li><i class="fas fa-briefcase me-2 text-muted"></i> {{ author.position }}</li>
+                                    {% endif %}
+                                    {% if author.department %}
+                                        <li><i class="fas fa-sitemap me-2 text-muted"></i> {{ author.department }}</li>
+                                    {% endif %}
+                                    {% if author.affiliation %}
+                                        <li><i class="fas fa-building me-2 text-secondary"></i> {{ author.affiliation }}
+                                        </li>
+                                    {% endif %}
+                                </ul>
+
+                                <!-- Author Stats -->
+                                <div class="d-flex flex-wrap gap-4 mb-4">
+                                    <div class="fact-badge px-3 py-2">
+                                        <i class="fas fa-file-alt me-2"></i>
+                                        <span class="fw-medium">{{ total_articles }} Maqola</span>
+                                    </div>
+                                    {% if total_views %}
+                                        <div class="fact-badge px-3 py-2">
+                                            <i class="fas fa-eye me-2"></i>
+                                            <span class="fw-medium">{{ total_views }} Ko'rish</span>
+                                        </div>
+                                    {% endif %}
+                                </div>
+
+                                <!-- Author Bio -->
+                                <div class="mb-3">
+                                    {% if author.bio %}
+                                        <p class="mb-0">{{ author.bio|safe }}</p>
+                                    {% else %}
+                                        <p class="mb-0 text-muted">
+                                            <strong>{{ author.full_name }}</strong>
+                                            {% if author.affiliation %} {{ author.affiliation }} muassasasida{% endif %}
+                                            ilmiy faoliyat yurituvchi tadqiqotchi.
+                                            {% if total_articles > 1 %}
+                                                {{ total_articles }} ta ilmiy maqola muallifi.
+                                            {% elif total_articles == 1 %}
+                                                1 ta ilmiy maqola muallifi.
+                                            {% else %}
+                                                Ilmiy ishlar ustida ishlamoqda.
+                                            {% endif %}
+                                        </p>
+                                    {% endif %}
+                                </div>
+
+                                <!-- Contact & Profiles -->
+                                <div class="d-flex flex-wrap gap-2 mt-3">
+                                    {% if author.email %}
+                                        <a href="mailto:{{ author.email }}" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-envelope me-1"></i> Email
+                                        </a>
+                                    {% endif %}
+                                    {% if author.website %}
+                                        <a href="{{ author.website }}" target="_blank"
+                                           class="btn btn-sm btn-outline-secondary">
+                                            <i class="fas fa-globe me-1"></i> Veb-sayt
+                                        </a>
+                                    {% endif %}
+                                    {% if author.orcid %}
+                                        <a href="https://orcid.org/{{ author.orcid }}" target="_blank"
+                                           class="btn btn-sm btn-outline-success">
+                                            <i class="fab fa-orcid me-1"></i> ORCID
+                                        </a>
+                                    {% endif %}
+                                    {% if author.google_scholar_id %}
+                                        <a href="https://scholar.google.com/citations?user={{ author.google_scholar_id }}"
+                                           target="_blank" class="btn btn-sm btn-outline-dark">
+                                            <i class="fas fa-graduation-cap me-1"></i> Google Scholar
+                                        </a>
+                                    {% endif %}
+                                    {% if author.researchgate_profile %}
+                                        <a href="{{ author.researchgate_profile }}" target="_blank"
+                                           class="btn btn-sm btn-outline-info">
+                                            <i class="fab fa-researchgate me-1"></i> ResearchGate
+                                        </a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div> <!-- End of Profile Card Row -->
+
+        <!-- Author's Articles Section -->
+        <div class="row">
+            <div class="col-12">
+                <h2 class="h4 mb-4 pb-2 border-bottom">
+                    <i class="fas fa-newspaper text-primary me-2"></i>
+                    Nashr Etilgan Maqolalar ({{ total_articles }})
+                </h2>
+
+                {% if articles %}
+                    <div class="articles-list-grid">
+                        {% for article in articles %}
+                            <div class="article-card-item">
+                                <div class="card h-100 border-0 shadow-sm">
+                                    <div class="card-body d-flex flex-column">
+                                        <h3 class="article-card-title h5 mb-3">
+                                            <a href="{% url 'article_detail' article.id %}">{{ article.title }}</a>
+                                        </h3>
+
+                                        <div class="article-card-meta mb-3">
+                                            <div class="meta-item">
+                                                <i class="fas fa-calendar-alt text-muted"></i>
+                                                <span>{{ article.date_published|date:"d.m.Y" }}</span>
+                                            </div>
+                                            {% if article.issue %}
+                                                <div class="meta-item">
+                                                    <i class="fas fa-book text-muted"></i>
+                                                    <a href="{% url 'journal_detail' article.issue.journal.url_slug %}">{{ article.issue.journal.title }}</a>
+                                                </div>
+                                                <div class="meta-item">
+                                                    <i class="fas fa-file-contract text-muted"></i>
+                                                    <span>Jild {{ article.issue.volume }}, Son {{ article.issue.number }}</span>
+                                                </div>
+                                            {% endif %}
+                                            {% if article.views %}
+                                                <div class="meta-item">
+                                                    <i class="fas fa-eye text-muted"></i>
+                                                    <span>{{ article.views }} ko'rilgan</span>
+                                                </div>
+                                            {% endif %}
+                                        </div>
+
+                                        {% if article.authors.count > 1 %}
+                                            <div class="article-card-authors mb-3">
+                                                <strong class="me-2">Mualliflar:</strong>
+                                                {% for co_author in article.authors.all %}
+                                                    <a href="{% url 'author_detail' co_author.id %}"
+                                                       class="author-tag-link {% if co_author.id == author.id %}current-author{% endif %}">
+                                                        {% if co_author.id == author.id %}
+                                                            <i class="fas fa-star me-1"></i>
+                                                        {% endif %}
+                                                        {{ co_author.first_name }} {{ co_author.last_name }}
+                                                    </a>
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+
+                                        {% if article.abstract %}
+                                            <a class="article-card-abstract flex-grow-1"
+                                               href="{% url 'article_detail' article.id %}">{{ article.abstract|safe|truncatewords:25 }}</a>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div> <!-- End of articles-list-grid -->
+                {% else %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle fa-2x mb-3"></i>
+                        <h5>Hozircha maqolalar mavjud emas</h5>
+                        <p class="mb-0">{{ author.full_name }} tomonidan hali maqolalar nashr etilmagan.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div> <!-- End of Articles Section -->
+    </div> <!-- End of main container -->
+{% endblock %}

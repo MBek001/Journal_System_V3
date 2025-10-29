@@ -1,0 +1,385 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Boğlanish | Imfaktor{% endblock %}
+{% block meta_description %}Imfaktor ilmiy nashrlar portaliga murojaat qiling. Biz bilan bog'lanish uchun telefon,
+    elektron pochta yoki onlayn shakl orqali xabar yuboring.{% endblock %}
+{% block meta_keywords %}boğlanish, imfaktor, ilmiy jurnal, kontakt, aloqa{% endblock %}
+
+{% block content %}
+    <!-- Contact Section -->
+    <section class="contact-section">
+        <div class="container">
+            <!-- Success/Error Messages -->
+            {% if messages %}
+                <div class="alert-messages">
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                            <i class="fa fa-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' %}exclamation-triangle{% else %}info-circle{% endif %} mr-2"></i>
+                            {{ message }}
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <!-- Contact Info Cards -->
+            <div class="contact-grid-journal">
+                <div class="contact-item-journal">
+                    <div class="contact-label-journal">
+                        <span class="fa fa-map-marker"></span> Manzil
+                    </div>
+                    <div class="contact-value-journal">
+                        100152, Toshkent shahri, Uchqo‘rg‘on tumani
+                    </div>
+                </div>
+                <div class="contact-item-journal">
+                    <div class="contact-label-journal">
+                        <span class="fa fa-phone"></span> Telefon
+                    </div>
+                    <div class="contact-value-journal">
+                        <a href="tel:+99894-4101155">+99894-410 11 55</a>
+                    </div>
+                </div>
+                <div class="contact-item-journal">
+                    <div class="contact-label-journal">
+                        <span class="fa fa-paper-plane"></span> Elektron pochta
+                    </div>
+                    <div class="contact-value-journal">
+                        <a href="mailto:tahririyat@imfaktor.uz">tahririyat@imfaktor.uz</a>
+                    </div>
+                </div>
+                <div class="contact-item-journal">
+                    <div class="contact-label-journal">
+                        <span class="fa fa-globe"></span> Veb-sayt
+                    </div>
+                    <div class="contact-value-journal">
+                        <a href="https://imfaktor.uz" target="_blank">imfaktor.uz</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contact Form and Map Container -->
+            <div class="row no-gutters">
+                <div class="col-md-7">
+                    <div class="contact-form-section">
+                        <h3>Bizga xabar yuboring</h3>
+                        <form method="POST" id="contactForm" name="contactForm" class="modern-form" novalidate>
+                            {% csrf_token %}
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="label" for="{{ form.name.id_for_label }}">To‘liq ism</label>
+                                        {{ form.name }}
+                                        {% if form.name.errors %}
+                                            <div class="form-error">
+                                                {% for error in form.name.errors %}
+                                                    <small class="text-danger">{{ error }}</small>
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="label" for="{{ form.email.id_for_label }}">Elektron pochta</label>
+                                        {{ form.email }}
+                                        {% if form.email.errors %}
+                                            <div class="form-error">
+                                                {% for error in form.email.errors %}
+                                                    <small class="text-danger">{{ error }}</small>
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label class="label" for="{{ form.subject.id_for_label }}">Mavzu</label>
+                                        {{ form.subject }}
+                                        {% if form.subject.errors %}
+                                            <div class="form-error">
+                                                {% for error in form.subject.errors %}
+                                                    <small class="text-danger">{{ error }}</small>
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label class="label" for="{{ form.message.id_for_label }}">Xabar</label>
+                                        {{ form.message }}
+                                        {% if form.message.errors %}
+                                            <div class="form-error">
+                                                {% for error in form.message.errors %}
+                                                    <small class="text-danger">{{ error }}</small>
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <button type="submit" class="btn btn-primary" id="submitBtn">
+                                            <span class="btn-text">Xabar yuborish</span>
+                                            <span class="btn-spinner" style="display: none;">
+                                                <i class="fa fa-spinner fa-spin"></i> Yuborilmoqda...
+                                            </span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <div class="col-md-5 order-md-first d-flex align-items-stretch">
+                    <div class="map-section" style="width: 100%;">
+                        <iframe
+                                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d5984.370111474598!2d69.24349707371814!3d41.32024210165651!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x38ae8b77e1b80ef1%3A0x94d7dc31e803e225!2sTashkent!5e0!3m2!1sen!2s!4v1717823283137!5m2!1sen!2s"
+                                width="100%"
+                                height="100%"
+                                style="border:0; min-height: 300px;"
+                                allowfullscreen=""
+                                loading="lazy"
+                                referrerpolicy="no-referrer-when-downgrade">
+                        </iframe>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}
+
+{% block extra_js %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const form = document.getElementById('contactForm');
+            const submitBtn = document.getElementById('submitBtn');
+            const btnText = submitBtn.querySelector('.btn-text');
+            const btnSpinner = submitBtn.querySelector('.btn-spinner');
+
+            form.addEventListener('submit', function (e) {
+                // Show loading state
+                submitBtn.disabled = true;
+                btnText.style.display = 'none';
+                btnSpinner.style.display = 'inline';
+
+                // Add visual feedback
+                submitBtn.style.transform = 'translateY(-1px)';
+
+                // Client-side validation
+                const requiredFields = form.querySelectorAll('input[required], textarea[required]');
+                let hasErrors = false;
+
+                requiredFields.forEach(field => {
+                    if (!field.value.trim()) {
+                        field.classList.add('is-invalid');
+                        hasErrors = true;
+                    } else {
+                        field.classList.remove('is-invalid');
+                    }
+                });
+
+                // Email validation
+                const emailField = form.querySelector('input[type="email"]');
+                if (emailField && emailField.value) {
+                    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                    if (!emailRegex.test(emailField.value)) {
+                        emailField.classList.add('is-invalid');
+                        hasErrors = true;
+                    }
+                }
+
+                if (hasErrors) {
+                    e.preventDefault();
+                    // Reset button state
+                    submitBtn.disabled = false;
+                    btnText.style.display = 'inline';
+                    btnSpinner.style.display = 'none';
+                    submitBtn.style.transform = 'translateY(0)';
+                }
+            });
+
+            // Real-time validation
+            const inputs = form.querySelectorAll('input, textarea');
+            inputs.forEach(input => {
+                input.addEventListener('blur', function () {
+                    if (this.hasAttribute('required') && !this.value.trim()) {
+                        this.classList.add('is-invalid');
+                    } else {
+                        this.classList.remove('is-invalid');
+                    }
+                });
+
+                input.addEventListener('input', function () {
+                    if (this.classList.contains('is-invalid') && this.value.trim()) {
+                        this.classList.remove('is-invalid');
+                    }
+                });
+            });
+
+            // Auto-dismiss alerts after 5 seconds
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(alert => {
+                setTimeout(() => {
+                    if (alert && alert.parentNode) {
+                        alert.style.opacity = '0';
+                        alert.style.transform = 'translateY(-20px)';
+                        setTimeout(() => {
+                            alert.remove();
+                        }, 300);
+                    }
+                }, 5000);
+            });
+        });
+    </script>
+{% endblock %}
+
+{% block extra_css %}
+    <style>
+        /* Contact section styling */
+        .contact-section {
+            padding: 2rem 0;
+        }
+
+        .contact-grid-journal {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .contact-item-journal {
+            background: #f8f9fa;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            padding: 1rem;
+            transition: box-shadow 0.2s;
+        }
+
+        .contact-item-journal:hover {
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .contact-label-journal {
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .contact-value-journal {
+            color: var(--text-muted);
+        }
+
+        .contact-value-journal a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .contact-value-journal a:hover {
+            text-decoration: underline;
+        }
+
+        .contact-form-section {
+            background: #f8f9fa;
+            padding: 2rem;
+            border-radius: var(--border-radius);
+            border: 1px solid var(--border-color);
+        }
+
+        .modern-form .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .modern-form .label {
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .modern-form input,
+        .modern-form textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            font-size: 0.95rem;
+            transition: border-color 0.2s;
+        }
+
+        .modern-form input:focus,
+        .modern-form textarea:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 5px rgba(var(--primary-rgb), 0.2);
+        }
+
+        .modern-form .is-invalid {
+            border-color: #dc3545;
+        }
+
+        .modern-form .form-error {
+            margin-top: 0.25rem;
+            font-size: 0.85rem;
+        }
+
+        .modern-form .btn-primary {
+            background: var(--primary);
+            border: none;
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            border-radius: var(--border-radius);
+            transition: all 0.3s ease;
+        }
+
+        .modern-form .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .map-section {
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .alert-messages {
+            margin-bottom: 2rem;
+        }
+
+        .alert {
+            border-radius: var(--border-radius);
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .alert .close {
+            margin-left: auto;
+            background: none;
+            border: none;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+    </style>
+{% endblock %}

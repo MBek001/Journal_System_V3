@@ -1,0 +1,266 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ page_title|default:"Son - Imfaktor" }}{% endblock %}
+
+{% block meta_description %}{{ meta_description|default:"" }}{% endblock %}
+{% block meta_keywords %}{{ journal.title }}, {{ issue.volume }}, {{ issue.number }}, ilmiy jurnal, O'zbekiston ilmiy
+    nashrlari{% endblock %}
+
+<!-- Google Scholar Metadata -->
+<meta name="citation_journal_title" content="{{ journal.title }}">
+<meta name="citation_volume" content="{{ issue.volume }}">
+<meta name="citation_issue" content="{{ issue.number }}">
+<meta name="citation_date" content="{{ issue.date_published|date:'Y/m/d' }}">
+<meta name="citation_issn" content="{{ journal.issn_print|default:journal.issn_online }}">
+
+{% block content %}
+    <div class="container mt-4 mb-5">
+        <!-- Breadcrumb -->
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'home' %}">Bosh sahifa</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'journals' %}">Jurnallar</a></li>
+                <li class="breadcrumb-item"><a
+                        href="{% url 'journal_detail' journal.url_slug %}">{{ journal.title }}</a></li>
+                <li class="breadcrumb-item active" aria-current="page">
+                    Jild {{ issue.volume }}, Son {{ issue.number }}
+                </li>
+            </ol>
+        </nav>
+
+        <!-- Issue Header -->
+        <div class="hero-section hero-section text-center mb-5">
+            <div class="hero-content">
+                <h1 class="hero-title">{{ journal.title }}</h1>
+                <h2 class="h4 mb-3">
+                    {% if issue.title %}
+                        {{ issue.title }}
+                    {% else %}
+                        Jild {{ issue.volume }}, Son {{ issue.number }}
+                    {% endif %}
+                </h2>
+                <p class="hero-subtitle">{{ issue.year }} yil • {{ issue.date_published|date:"F" }}</p>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Issue Info -->
+            <div class="col-12 mb-4">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <div class="row">
+                            <div class="col-lg-8">
+                                <h3 class="h4 mb-4 pb-2 border-bottom">
+                                    <i class="fas fa-info-circle text-primary me-2"></i>
+                                    Son Haqida
+                                </h3>
+
+                                <div class="d-flex flex-wrap gap-3 mb-4">
+                                    <div class="fact-badge">
+                                        <i class="fas fa-calendar-alt"></i>
+                                        <span>{{ issue.date_published|date:"d.m.Y" }}</span>
+                                    </div>
+                                    <div class="fact-badge">
+                                        <i class="fas fa-file-contract"></i>
+                                        <span>Jild {{ issue.volume }}</span>
+                                    </div>
+                                    <div class="fact-badge">
+                                        <i class="fas fa-list-ol"></i>
+                                        <span>Son {{ issue.number }}</span>
+                                    </div>
+                                    <div class="fact-badge">
+                                        <i class="fas fa-newspaper"></i>
+                                        <span>{{ articles.count }} maqola</span>
+                                    </div>
+                                </div>
+
+                                {% if issue.description %}
+                                    <div class="mb-4">
+                                        <p>{{ issue.description|safe }}</p>
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="col-lg-4">
+                                {% if issue.cover_image %}
+                                    <div class="text-center mb-4">
+                                        <img src="{{ issue.cover_image.url }}"
+                                             alt="Jurnal muqovasi: {{ journal.title }} - Jild {{ issue.volume }}, Son {{ issue.number }}"
+                                             class="img-fluid rounded shadow"
+                                             style="max-height: 300px; object-fit: cover;">
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div> <!-- End of Issue Info Row -->
+
+        <!-- Articles List -->
+        <div class="row">
+            <div class="col-12">
+                <h2 class="h4 mb-4 pb-2 border-bottom">
+                    <i class="fas fa-list text-primary me-2"></i>
+                    Bu Sondagi Maqolalar
+                </h2>
+
+                {% if articles %}
+                    <div class="articles-list-grid">
+                        {% for article in articles %}
+                            <script type="application/ld+json">
+                                {
+                                  "@context": "https://schema.org",
+                                  "@type": "ScholarlyArticle",
+                                  "headline": "{{ article.title|escapejs }}",
+                          "author": [
+                                {% for author in article.authors.all %}
+                                    {
+                                      "@type": "Person",
+                                      "name": "{{ author.first_name }} {{ author.last_name }}"{% if author.orcid_id %},
+                                      "identifier": "https://orcid.org/{{ author.orcid_id }}"{% endif %}
+                                    }
+                                    {% if not forloop.last %},{% endif %}
+                            {% endfor %}
+                                ],
+                                "datePublished": "{{ issue.date_published|date:'Y-m-d' }}",
+                          "publisher":{
+                            "@type": "Organization",
+                            "name": "{{ journal.title }}"
+                          },
+                          "abstract": "{{ article.abstract|striptags|safe|truncatechars:300|escapejs }}",
+                          "url": "{{ request.build_absolute_uri }}#article-{{ article.id }}",
+                          "identifier": "{% if article.doi %}https://doi.org/{{ article.doi }}{% else %}
+                                {{ request.build_absolute_uri }}{% endif %}",
+                          "isPartOf": {
+                            "@type": "PublicationVolume",
+                            "name": "Jild{{ issue.volume }},Son{{ issue.number }}",
+                            "isPartOf": {
+                              "@type": "Periodical",
+                              "name": "{{ journal.title }}",
+                              "issn": "{{ journal.issn_print|default:journal.issn_online }}"
+                            }
+                          },
+                          "copyrightHolder": {
+                            "@type": "Organization",
+                            "name": "Imfaktor"
+                          }
+                        }
+                            </script>
+
+                            <div class="article-card-item">
+                                <div class="card h-100 border-0 shadow-sm">
+                                    <div class="card-body d-flex flex-column">
+                                        <div class="d-flex">
+                                            <div class="article-number bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3 flex-shrink-0"
+                                                 style="width: 40px; height: 40px; font-weight: 600;">
+                                                {{ forloop.counter }}
+                                            </div>
+                                            <div class="flex-grow-1">
+                                                <h3 class="article-card-title h5 mb-2">
+                                                    <a href="{% url 'article_detail' article.id %}" rel="bookmark">
+                                                        {{ article.title|safe }}
+                                                    </a>
+                                                </h3>
+
+                                                <div class="article-card-authors mb-2">
+                                                    <i class="fas fa-users text-muted me-1"></i>
+                                                    {% for author in article.authors.all %}
+                                                        <a href="{% url 'author_detail' author.id %}"
+                                                           class="author-tag-link"
+                                                           {% if author.orcid_id %}title="ORCID: {{ author.orcid_id }}" {% endif %}>
+                                                            {{ author.first_name }} {{ author.last_name }}
+                                                        </a>{% if not forloop.last %}, {% endif %}
+                                                    {% endfor %}
+                                                </div>
+
+                                                <div class="article-card-meta mb-3">
+                                                    {% if article.first_page and article.last_page %}
+                                                        <div class="meta-item">
+                                                            <i class="fas fa-file-alt text-muted"></i>
+                                                            <span>{{ article.first_page }}-{{ article.last_page }} sahifa</span>
+                                                        </div>
+                                                    {% endif %}
+                                                    {% if article.views %}
+                                                        <div class="meta-item">
+                                                            <i class="fas fa-eye text-muted"></i>
+                                                            <span>{{ article.views }} ko'rilgan</span>
+                                                        </div>
+                                                    {% endif %}
+                                                    {% if article.doi %}
+                                                        <div class="meta-item">
+                                                            <i class="fas fa-link text-muted"></i>
+                                                            <span><a href="{{ article.doi }}"
+                                                                     target="_blank"
+                                                                     rel="noopener noreferrer">DOI: {{ article.doi }}</a></span>
+                                                        </div>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {% if article.abstract %}
+                                            <p class="article-card-abstract flex-grow-1">{{ article.abstract|safe|truncatewords:25 }}</p>
+                                        {% endif %}
+
+                                        <div class="article-card-actions mt-auto">
+                                            <a href="{% url 'article_detail' article.id %}"
+                                               class="btn btn-sm btn-primary"
+                                               title="Batafsil ma'lumotlar">
+                                                <i class="fas fa-eye me-1"></i> Batafsil
+                                            </a>
+                                            {% if article.main_pdf %}
+                                                <a href="{% url 'download_pdf' article.id %}"
+                                                   class="btn btn-sm btn-outline-primary"
+                                                   title="PDF faylni yuklab olish"
+                                                   download>
+                                                    <i class="fas fa-download me-1"></i> PDF
+                                                </a>
+                                            {% endif %}
+                                            {% if article.open_access %}
+                                                <span class="badge bg-success">
+                                                <i class="fas fa-lock-open me-1"></i> Ochiq kirish
+                                            </span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div> <!-- End of articles-list-grid -->
+                {% else %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle fa-2x mb-3"></i>
+                        <h5>Bu sonda hozircha maqolalar mavjud emas</h5>
+                        <p class="mb-0">Tez orada maqolalar qo'shiladi</p>
+                        <div class="mt-3">
+                            <a href="{% url 'journal_detail' journal.url_slug %}" class="btn btn-primary">Jurnalga
+                                qaytish</a>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div> <!-- End of Articles List -->
+    </div> <!-- End of main container -->
+
+    <!-- Canonical URL -->
+    <link rel="canonical" href="{{ request.build_absolute_uri }}">
+
+    <!-- Sitemap hint -->
+    {#    <link rel="alternate" type="application/rss+xml" title="RSS feed" href="{% url 'rss_feed' %}">#}
+{% endblock %}
+
+{% block extra_js %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const hash = window.location.hash;
+            if (hash && hash.startsWith('#article-')) {
+                const element = document.querySelector(hash);
+                if (element) {
+                    element.scrollIntoView({behavior: 'smooth'});
+                }
+            }
+        });
+    </script>
+{% endblock %}

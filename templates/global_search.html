@@ -1,0 +1,213 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{% if q %}Qidiruv: "{{ q }}" - {% endif %}Imfaktor{% endblock %}
+
+{% block meta_description %}
+    {% if q %}{{ q }} bo'yicha qidiruv natijalari - Imfaktor ilmiy nashrlar portali{% else %}Imfaktor - Ilmiy nashrlar portali{% endif %}
+{% endblock %}
+
+{% block meta_keywords %}
+    ilmiy jurnal, maqola, muallif, qidiruv, Imfaktor
+{% endblock %}
+
+{% block content %}
+    <!-- Search Hero Section -->
+    <section class="search-hero-section">
+        <div class="container">
+            <div class="search-container mb-4">
+                <form method="get" action="{% url 'global_search' %}" class="input-group search-box">
+                    <input type="text" class="form-control" id="search-input" name="q" placeholder="Qidiruv..."
+                           aria-label="Qidiruv" value="{{ q|default:'' }}" required>
+                    <button class="btn btn-primary" type="submit" id="search-btn">
+                        <i class="fas fa-search me-2"></i> Qidiruv
+                    </button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Search Header -->
+        {% if q %}
+            <div class="search-header">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <h3 class="mb-2">
+                            Qidiruv natijalari: <span class="search-query">"{{ q }}"</span>
+                        </h3>
+                        <p class="text-muted mb-0">
+                            <strong>{{ total_results }}</strong> ta natija topildi
+                        </p>
+                    </div>
+                    <div class="col-md-4 text-md-end">
+                        <div class="d-flex justify-content-md-end justify-content-start mt-3 mt-md-0 gap-3">
+                            {% if journal_count %}
+                                <div class="text-center">
+                                    <div class="fw-bold text-primary fs-4">{{ journal_count }}</div>
+                                    <small class="text-muted">Jurnal</small>
+                                </div>
+                            {% endif %}
+                            {% if article_count %}
+                                <div class="text-center">
+                                    <div class="fw-bold text-primary fs-4">{{ article_count }}</div>
+                                    <small class="text-muted">Maqola</small>
+                                </div>
+                            {% endif %}
+                            {% if author_count %}
+                                <div class="text-center">
+                                    <div class="fw-bold text-primary fs-4">{{ author_count }}</div>
+                                    <small class="text-muted">Muallif</small>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="alert alert-info">
+                Qidiruv uchun kalit so'z kiriting.
+            </div>
+        {% endif %}
+
+        <!-- Journal Results -->
+        {% if journal_results %}
+            <h4 class="section-title">
+                Jurnallar
+            </h4>
+            <div class="journal-list">
+                <ul>
+                    {% for journal in journal_results %}
+                        <li>
+                            <a href="{{ journal.get_absolute_url }}">{{ journal.title }}</a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+
+        <!-- Article Results -->
+        {% if article_results %}
+            <h4 class="section-title">
+                Maqolalar
+            </h4>
+            <div class="articles-grid">
+                {% for article in article_results %}
+                    <div class="article-card">
+                        <div class="article-info">
+                            <h3 class="article-title">
+                                <a href="{% url 'article_detail' article.id %}">{{ article.title }}</a>
+                            </h3>
+
+                            {% if article.issue and article.issue.journal %}
+                                <div class="journal-info">
+                                    <a href="{{ article.issue.journal.get_absolute_url }}">{{ article.issue.journal.title }}</a>
+                                </div>
+                            {% endif %}
+
+                            {% if article.authors.all %}
+                                <div class="article-authors">
+                                    {% for author in article.authors.all %}
+                                        <span class="author">
+                                            <a href="{% url 'author_detail' author.id %}">{{ author.full_name }}</a>
+                                            {% if not forloop.last %}, {% endif %}
+                                        </span>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+
+                            <div class="article-meta-small">
+                                {% if article.issue %}
+                                    <span class="journal-info">
+                                        {{ article.issue.journal.title }},
+                                        {{ article.date_published|date:"Y" }}
+                                        {% if article.issue.volume and article.issue.number %}
+                                            , Vol.{{ article.issue.volume }}, No.{{ article.issue.number }}
+                                        {% endif %}
+                                    </span>
+                                {% endif %}
+                                {% if article.first_page and article.last_page %}
+                                    <span class="page-range">pp. {{ article.first_page }}-{{ article.last_page }}</span>
+                                {% elif article.first_page %}
+                                    <span class="page-range">p. {{ article.first_page }}</span>
+                                {% endif %}
+                            </div>
+
+                            <p class="article-abstract">
+                                {{ article.abstract|safe|truncatewords:20 }}
+                            </p>
+
+                            <div class="article-actions">
+                                <a href="{% url 'article_detail' article.id %}" class="btn btn-primary btn-sm">
+                                    <i class="fas fa-eye me-2"></i> Ko'rish
+                                </a>
+                                {% if article.date_published %}
+                                    <span class="text-muted ms-2">
+                                        <i class="far fa-calendar me-1"></i>
+                                        {{ article.date_published|date:"d.m.Y" }}
+                                    </span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <!-- Author Results -->
+        {% if author_results %}
+            <h4 class="section-title">
+                Mualliflar
+            </h4>
+            <div class="authors-grid">
+                {% for author in author_results %}
+                    <div class="author-card-article">
+                        <div class="author-image">
+                            {% if author.photo %}
+                                <img src="{{ author.photo.url }}" alt="{{ author.full_name }}">
+                            {% else %}
+                                <div class="placeholder-image">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="author-info">
+                            <h3 class="author-name">
+                                <a href="{% url 'author_detail' author.id %}">{{ author.full_name }}</a>
+                            </h3>
+                            {% if author.affiliation %}
+                                <div class="author-affiliation">
+                                    <i class="fas fa-building me-1"></i>
+                                    {{ author.affiliation }}
+                                </div>
+                            {% endif %}
+                            {% if author.bio %}
+                                <p class="author-bio">
+                                    {{ author.bio|safe|truncatewords:15 }}
+                                </p>
+                            {% endif %}
+                            <a href="{% url 'author_detail' author.id %}" class="view-profile-btn">
+                                <i class="fas fa-eye me-1"></i> Profilni ko'rish
+                            </a>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <!-- No Results -->
+        {% if not journal_results and not article_results and not author_results and q %}
+            <div class="no-results">
+                <i class="fas fa-search fa-5x text-muted mb-3"></i>
+                <h4 class="text-muted">Narsa topilmadi</h4>
+                <p class="text-muted">"{{ q }}" bo'yicha hech qanday natija topilmadi.</p>
+                <div class="mt-4">
+                    <a href="{% url 'home' %}" class="btn btn-primary">
+                        <i class="fas fa-home me-2"></i> Bosh sahifaga qaytish
+                    </a>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

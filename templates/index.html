@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+{% endblock %}
+
+{% block title %}Bosh sahifa | Akademik Jurnal Platforma{% endblock %}
+
+{% block content %}
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container">
+            <div class="hero-content">
+                <h1 class="hero-title">Ilmiy bilimlarga yetakchi platforma</h1>
+                <p class="hero-subtitle">Akademik jurnallar, tadqiqot maqolalari va ilmiy yangiliklar — barchasi bir joyda.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Prominent Search Section -->
+    <div class="search-hero-section">
+        <div class="container">
+            <div class="search-container mb-4">
+                <form method="get" action="{% url 'global_search' %}" class="input-group search-box">
+                    <input type="text" class="form-control" id="journal-search" name="q" placeholder="Qidirish..."
+                           aria-label="Search journals" value="{{ request.GET.q|default:'' }}" required>
+                    <button class="btn btn-primary" type="submit" id="journal-search-btn">
+                        <i class="fas fa-search me-2"></i>Qidiruv
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Articles Section -->
+    <div class="section bg-light">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">So'ngi Maqolalar</h2>
+                <a href="{% url 'articles_list' %}" class="btn btn-outline-primary">Barchasini ko'rish</a>
+            </div>
+
+            <div class="articles-grid">
+                {% for item in recent_articles|slice:":10" %}
+                    {% with article=item.article first_author=item.first_author %}
+                        <div class="article-card"> <!-- This is .article-card -->
+                            <div class="article-info">
+                                <!-- Title is now a link -->
+                                <h3 class="article-title">
+                                    <a href="{% url 'article_detail' article.id %}">{{ article.title }}</a>
+                                </h3>
+
+                                <!-- Author -->
+                                <div class="article-authors">
+                                    {% if first_author %}
+                                        <span class="author">{{ first_author.full_name }}</span>
+                                        {% if article.author_list.count > 1 %}
+                                            <span class="author">va boshqalar</span>
+                                        {% endif %}
+                                    {% else %}
+                                        <span class="author">Muallif aniqlanmagan</span>
+                                    {% endif %}
+                                </div>
+
+                                <!-- Journal, Year, Issue, Pages -->
+                                <div class="article-meta-small">
+                                    {% if article.issue %}
+                                        <span class="journal-info">
+                                            {{ article.issue.journal.title }},
+                                            {{ article.date_published|date:"Y" }}
+                                            {% if article.issue.volume and article.issue.number %}
+                                                , Vol.{{ article.issue.volume }}, No.{{ article.issue.number }}
+                                            {% endif %}
+                                        </span>
+                                    {% else %}
+                                        <span class="journal-info">Nashr aniqlanmagan</span>
+                                    {% endif %}
+                                    {% if article.first_page and article.last_page %}
+                                        <span class="page-range">pp. {{ article.first_page }}-{{ article.last_page }}</span>
+                                    {% elif article.first_page %}
+                                        <span class="page-range">p. {{ article.first_page }}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    {% endwith %}
+                {% empty %}
+                    <div class="col-12">
+                        <div class="alert alert-info">Hozirda so'ngi maqolalar mavjud emas.</div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+    <script src="{% static 'js/script.js' %}"></script>
+{% endblock %}

@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Mualliflar uchun qo‘llanma | Imfaktor{% endblock %}
+{% block meta_description %}Imfaktor platformasida maqola yuborish bo‘yicha mualliflar uchun qo‘llanma.{% endblock %}
+{% block meta_keywords %}mualliflar uchun, qo‘llanma, maqola yuborish, imfaktor{% endblock %}
+
+{% block content %}
+    <!-- Hero Section -->
+    <section class="articles-list-header">
+        <div class="container">
+            <div class="articles-header-content text-center">
+                <h1 class="articles-header-title">Mualliflar uchun qo‘llanma</h1>
+                <p class="articles-header-subtitle">Imfaktor platformasida maqola yuborish bo‘yicha ko‘rsatmalar va
+                    tavsiyalar</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Publishers Section -->
+    <section class="publishers-section py-4">
+        <div class="container">
+            <div class="content-box bg-white rounded shadow p-4 p-md-5">
+                <!-- Navigation Tabs -->
+                <ul class="nav nav-tabs modern-nav-tabs mb-4" id="policyTabs" role="tablist">
+                    {% for nav_item in navigation_items %}
+                        <li class="nav-item">
+                            <a class="sub-nav-button {% if forloop.first %}active{% endif %}"
+                               id="nav-{{ nav_item.id }}-tab"
+                               data-bs-toggle="tab"
+                               href="#nav-{{ nav_item.id }}"
+                               role="tab"
+                               aria-controls="nav-{{ nav_item.id }}"
+                               aria-selected="{% if forloop.first %}true{% else %}false{% endif %}">{{ nav_item.name }}</a>
+                        </li>
+                    {% endfor %}
+                </ul>
+
+                <!-- Tab Content -->
+                <div class="tab-content modern-tab-content" id="policyTabContent">
+                    {% for nav_item in navigation_items %}
+                        <div class="tab-pane fade {% if forloop.first %}show active{% endif %}"
+                             id="nav-{{ nav_item.id }}"
+                             role="tabpanel"
+                             aria-labelledby="nav-{{ nav_item.id }}-tab">
+                            {% for content_item in nav_item.navigation_item_set.all %}
+                                <div class="content-item mb-3">
+                                    <p>{{ content_item.text|linebreaks|safe }}</p>
+                                </div>
+                            {% empty %}
+                                <p class="text-muted">To'ldirilmoqda…</p>
+                            {% endfor %}
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}
+
+
+{% block extra_js %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Log hero section rendering
+            console.log('Hero section loaded:', {
+                title: document.querySelector('.articles-header-title')?.textContent,
+                subtitle: document.querySelector('.articles-header-subtitle')?.textContent,
+                breadcrumbs: document.querySelector('.breadcrumbs')?.textContent
+            });
+
+            // Tab interaction logging
+            const tabs = document.querySelectorAll('.modern-nav-tabs .nav-link');
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function (e) {
+                    console.log('Tab clicked:', this.textContent, 'ID:', this.id);
+                });
+            });
+
+            // Log active tab on load
+            const activeTab = document.querySelector('.modern-nav-tabs .nav-link.active');
+            if (activeTab) {
+                console.log('Active tab on load:', activeTab.textContent, 'ID:', activeTab.id);
+            }
+        });
+    </script>
+{% endblock %}

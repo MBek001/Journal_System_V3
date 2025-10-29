@@ -1,0 +1,316 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Maqola yuborish | Imfaktor{% endblock %}
+{% block meta_description %}Ilmiy maqolalaringizni imfaktor.uz portali orqali yuboring. Tez va samarali ko'rib
+    chiqish.{% endblock %}
+{% block meta_keywords %}maqola yuborish, imfaktor, ilmiy nashr, jurnal{% endblock %}
+
+{% block content %}
+    <!-- Submission Section -->
+    <section class="article-submission-section py-4">
+        <div class="container">
+            <!-- Messages -->
+            {% if messages %}
+                <div class="alert-messages mb-4">
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                            <i class="fa fa-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' %}exclamation-triangle{% else %}info-circle{% endif %} mr-2"></i>
+                            {{ message }}
+                            <button type="button" class="close" data-bs-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <div class="submission-container bg-white rounded shadow p-4 p-md-5">
+                <form method="post" enctype="multipart/form-data" class="modern-form" id="submissionForm">
+                    {% csrf_token %}
+                    <div class="row g-4">
+                        <!-- Left Column: Article Details -->
+                        <div class="col-12 col-lg-6">
+                            <div class="content-box">
+                                <h3 class="box-title mb-4">Maqola ma'lumotlari</h3>
+
+                                <div class="form-group mb-3">
+                                    <label for="fan" class="form-label">Fan tarmoqi *</label>
+                                    <select class="form-select" id="fan" name="fan" required>
+                                        <option value="" {% if not form_data.fan %}selected{% endif %} disabled>Fanni
+                                            tanlang
+                                        </option>
+                                        {% for fan in fanlar %}
+                                            <option value="{{ fan.id }}"
+                                                    {% if form_data.fan == fan.id|stringformat:"s" %}selected{% endif %}>{{ fan.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    {% if form_errors.fan %}
+                                        <small class="text-danger">{{ form_errors.fan }}</small>
+                                    {% endif %}
+                                </div>
+
+                                <div class="form-group mb-3">
+                                    <label for="ilm" class="form-label">Ilmiy nashr *</label>
+                                    <select class="form-select" id="ilm" name="ilm" required>
+                                        <option value="" {% if not form_data.ilm %}selected{% endif %} disabled>Ilmiy
+                                            nashrni tanlang
+                                        </option>
+                                        {% for nashr in nashrlar %}
+                                            <option value="{{ nashr.id }}"
+                                                    {% if form_data.ilm == nashr.id|stringformat:"s" %}selected{% endif %}>{{ nashr.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    {% if form_errors.ilm %}
+                                        <small class="text-danger">{{ form_errors.ilm }}</small>
+                                    {% endif %}
+                                </div>
+
+                                <div class="form-group mb-3">
+                                    <label for="author" class="form-label">Muallif (I.F.Sh) *</label>
+                                    <input type="text" id="author" name="author" class="form-control"
+                                           value="{{ form_data.author|default:'' }}" required>
+                                    {% if form_errors.author %}
+                                        <small class="text-danger">{{ form_errors.author }}</small>
+                                    {% endif %}
+                                </div>
+
+                                <div class="form-group mb-3">
+                                    <label for="email" class="form-label">Email *</label>
+                                    <input type="email" id="email" name="email" class="form-control"
+                                           value="{{ form_data.email|default:'' }}" required>
+                                    {% if form_errors.email %}
+                                        <small class="text-danger">{{ form_errors.email }}</small>
+                                    {% endif %}
+                                </div>
+
+                                <div class="form-group mb-3">
+                                    <label for="phone" class="form-label">Telefon raqami *</label>
+                                    <input type="tel" id="phone" name="phone" class="form-control"
+                                           value="{{ form_data.phone|default:'' }}" required
+                                           pattern="\+[0-9]{10,12}" placeholder="+998123456789">
+                                    <small class="form-text text-muted">Masalan: +998123456789</small>
+                                    {% if form_errors.phone %}
+                                        <small class="text-danger">{{ form_errors.phone }}</small>
+                                    {% endif %}
+                                </div>
+
+                                <div class="form-group mb-3">
+                                    <label for="description" class="form-label">Izoh</label>
+                                    <textarea name="description" id="description" class="form-control" rows="4"
+                                              placeholder="Izohingizni yozing...">{{ form_data.description|default:'' }}</textarea>
+                                    {% if form_errors.description %}
+                                        <small class="text-danger">{{ form_errors.description }}</small>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right Column: Notes and File Upload -->
+                        <div class="col-12 col-lg-6 d-flex flex-column gap-4">
+                            <!-- Notes Box -->
+                            <div class="content-box">
+                                <h3 class="box-title mb-4">Eslatma</h3>
+                                <p>Xurmatli muallif, maqolangizni tez va samarali taqdim etish uchun Telegram orqali ham
+                                    yuborishingiz mumkin.</p>
+                                <div class="telegram-contact mt-3 p-3 rounded border-start border-primary bg-light-subtle">
+                                    <p class="mb-1 fw-medium">Jurnallar uchun:</p>
+                                    <p class="mb-2">
+                                        <strong>Abduraxmon Xasanov</strong><br>
+                                        Telegram: <a href="https://t.me/imfakkoo/submit"
+                                                     class="text-primary text-decoration-none" target="_blank"
+                                                     rel="noopener noreferrer">https://t.me/imfakkoo/submit</a>
+                                    </p>
+                                    <p class="mb-1 fw-medium">Tezkor chop etish uchun:</p>
+                                    <p class="mb-0">
+                                        <strong>Malika Atadjanova</strong><br>
+                                        Telegram: <a href="https://t.me/imfakkoo/Malika"
+                                                     class="text-primary text-decoration-none" target="_blank"
+                                                     rel="noopener noreferrer">https://t.me/imfakkoo/Malika</a>
+                                    </p>
+                                </div>
+                            </div>
+
+                            <!-- File Upload Box -->
+                            <div class="content-box">
+                                <h3 class="box-title mb-4">Fayl yuklash</h3>
+                                <div class="file-upload-area border rounded p-4 text-center bg-light-subtle"
+                                     id="file-upload-area">
+                                    <div class="file-upload-icon mb-3 text-primary">
+                                        <i class="fas fa-cloud-upload-alt fa-2x"></i>
+                                    </div>
+                                    <p class="mb-1">Fayllarni bu yerga tashlang yoki quyidagi tugmani bosing</p>
+                                    <input type="file" name="article_file" id="article_file" multiple
+                                           accept=".pdf,.doc,.docx">
+                                </div>
+                                <div class="file-list mt-3" id="file-list"></div>
+                                <p class="text-muted small mt-2">Maksimal 3 ta fayl yuklashingiz mumkin.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="text-center mt-4">
+                        <button type="submit" class="btn btn-primary btn-lg submit-btn" id="submitBtn">
+                            <span class="btn-text"><i class="fas fa-paper-plane me-2"></i> Maqolani yuborish</span>
+                            <span class="btn-spinner" style="display: none;">
+                                <i class="fa fa-spinner fa-spin"></i> Yuborilmoqda...
+                            </span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+{% endblock %}
+
+{% block extra_js %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const fileUploadArea = document.getElementById('file-upload-area');
+            const fileInput = document.getElementById('article_file');
+            const fileList = document.getElementById('file-list');
+            const form = document.getElementById('submissionForm');
+            const submitBtn = document.getElementById('submitBtn');
+            const btnText = submitBtn.querySelector('.btn-text');
+            const btnSpinner = submitBtn.querySelector('.btn-spinner');
+
+            if (!fileUploadArea || !fileInput || !fileList || !form || !submitBtn) {
+                console.error("Elementlar topilmadi!");
+                return;
+            }
+
+            // File input change
+            fileInput.addEventListener('change', function (e) {
+                console.log("Fayl tanlandi (article_file):", Array.from(this.files).map(f => f.name));
+                console.log("Event target:", e.target);
+                fileList.innerHTML = ''; // Clear previous list
+                const files = Array.from(this.files);
+                if (files.length > 3) {
+                    alert('Maksimal 3 ta fayl yuklashingiz mumkin.');
+                    this.value = '';
+                    return;
+                }
+                files.forEach(file => {
+                    if (!['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'].includes(file.type)) {
+                        alert('Faqat PDF, DOC yoki DOCX fayllarni yuklash mumkin!');
+                        return;
+                    }
+                    const fileItem = document.createElement('div');
+                    fileItem.className = 'file-item d-flex align-items-center border rounded p-2 mb-2 bg-light';
+                    fileItem.innerHTML = `
+                        <div class="file-icon text-primary me-2">
+                            <i class="fas fa-file"></i>
+                        </div>
+                        <div class="file-details flex-grow-1">
+                            <div class="file-name fw-medium text-truncate">${file.name}</div>
+                            <div class="file-size text-muted small">${formatFileSize(file.size)}</div>
+                        </div>
+                    `;
+                    fileList.appendChild(fileItem);
+                });
+            });
+
+            // Drag and drop
+            fileUploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                fileUploadArea.classList.add('border-primary', 'bg-primary-subtle');
+            });
+
+            fileUploadArea.addEventListener('dragleave', () => {
+                fileUploadArea.classList.remove('border-primary', 'bg-primary-subtle');
+            });
+
+            fileUploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                fileUploadArea.classList.remove('border-primary', 'bg-primary-subtle');
+                const files = Array.from(e.dataTransfer.files);
+                console.log("Sudrab keltirilgan fayllar:", files.map(f => f.name));
+                if (files.length > 3) {
+                    alert('Maksimal 3 ta fayl yuklashingiz mumkin.');
+                    return;
+                }
+                fileList.innerHTML = ''; // Clear previous list
+                fileInput.value = ''; // Clear input
+                files.forEach(file => {
+                    if (!['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'].includes(file.type)) {
+                        alert('Faqat PDF, DOC yoki DOCX fayllarni yuklash mumkin!');
+                        return;
+                    }
+                    const fileItem = document.createElement('div');
+                    fileItem.className = 'file-item d-flex align-items-center border rounded p-2 mb-2 bg-light';
+                    fileItem.innerHTML = `
+                        <div class="file-icon text-primary me-2">
+                            <i class="fas fa-file"></i>
+                        </div>
+                        <div class="file-details flex-grow-1">
+                            <div class="file-name fw-medium text-truncate">${file.name}</div>
+                            <div class="file-size text-muted small">${formatFileSize(file.size)}</div>
+                        </div>
+                    `;
+                    fileList.appendChild(fileItem);
+                });
+                // Update fileInput.files
+                const dataTransfer = new DataTransfer();
+                files.forEach(file => dataTransfer.items.add(file));
+                fileInput.files = dataTransfer.files;
+            });
+
+            function formatFileSize(bytes) {
+                if (bytes === 0) return '0 Bytes';
+                const k = 1024;
+                const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            }
+
+            // Form submission
+            form.addEventListener('submit', function (e) {
+                console.log("Form yuborilmoqda, fayllar:", Array.from(fileInput.files).map(f => f.name));
+                if (fileInput.files.length === 0) {
+                    e.preventDefault();
+                    alert('Kamida bitta fayl yuklang!');
+                    submitBtn.disabled = false;
+                    btnText.style.display = 'inline';
+                    btnSpinner.style.display = 'none';
+                } else {
+                    submitBtn.disabled = true;
+                    btnText.style.display = 'none';
+                    btnSpinner.style.display = 'inline';
+                }
+            });
+
+            // Client-side validation for other fields
+            const inputs = form.querySelectorAll('input[required], select[required]');
+            inputs.forEach(input => {
+                input.addEventListener('blur', function () {
+                    if (!this.value.trim()) {
+                        this.classList.add('is-invalid');
+                    } else {
+                        this.classList.remove('is-invalid');
+                    }
+                });
+                input.addEventListener('input', function () {
+                    if (this.classList.contains('is-invalid') && this.value.trim()) {
+                        this.classList.remove('is-invalid');
+                    }
+                });
+            });
+
+            // Auto-dismiss alerts
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(alert => {
+                setTimeout(() => {
+                    if (alert && alert.parentNode) {
+                        alert.style.opacity = '0';
+                        alert.style.transform = 'translateY(-20px)';
+                        setTimeout(() => {
+                            alert.remove();
+                        }, 300);
+                    }
+                }, 5000);
+            });
+        });
+    </script>
+{% endblock %}
+

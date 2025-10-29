@@ -1,0 +1,1497 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ journal.title }} - Boshqaruv | Imfaktor Admin</title>
+    <link rel="stylesheet" href="{% static 'css/admin.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Quill Editor CSS -->
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+</head>
+<body data-journal-id="{{ journal.id }}">
+
+<!-- Header -->
+<header class="admin-header">
+    <div class="container-fluid">
+        <div class="row align-items-center">
+            <div class="col">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb mb-0">
+                        <li class="breadcrumb-item"><a href="/admin/">Admin</a></li>
+                        <li class="breadcrumb-item"><a href="/admin/#journals">Jurnallar</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">{{ journal.title }}</li>
+                    </ol>
+                </nav>
+            </div>
+            <div class="col-auto">
+                <div class="dropdown">
+                    <button class="btn btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown"
+                            aria-expanded="false">
+                        <i class="fas fa-user me-2"></i>{{ admin_username|default:"Admin" }}
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="/" target="_blank"><i class="fas fa-globe me-2"></i>Saytni
+                            ko'rish</a></li>
+                        <li><a class="dropdown-item" href="{% url 'custom_admin' %}"><i
+                                class="fas fa-tachometer-alt me-2"></i>Admin Dashboard</a></li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li><a class="dropdown-item" href="/admin/logout/"><i class="fas fa-sign-out-alt me-2"></i>Chiqish</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-auto dropdown">
+                <button
+                        class="btn btn-light dropdown-toggle me-2"
+                        id="journalsDropdown"
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false"
+                >
+                    <i class="fas fa-book-open me-2"></i>Jurnallar
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="journalsDropdown" id="journalsListContainer">
+                    <!-- AJAX will fill in:
+                         <li><a class="dropdown-item" href="/admin/journals/ID/manage/">Title</a></li>
+                    -->
+                </ul>
+            </div>
+        </div>
+    </div>
+</header>
+
+<div class="container-fluid py-4">
+    <!-- Journal Overview Section -->
+    <div class="row g-4 mb-4">
+        <div class="col-lg-3 col-md-6">
+            <div class="stat-card">
+                <div class="stat-number">{{ total_articles|default:0 }}</div>
+                <div class="stat-label">Jami Maqolalar</div>
+                <i class="fas fa-newspaper stat-icon"></i>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+            <div class="stat-card">
+                <div class="stat-number">{{ total_issues|default:0 }}</div>
+                <div class="stat-label">Jami Sonlar</div>
+                <i class="fas fa-bookmark stat-icon"></i>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+            <div class="stat-card">
+                <div class="stat-number">{{ total_views|default:0 }}</div>
+                <div class="stat-label">Ko'rishlar</div>
+                <i class="fas fa-eye stat-icon"></i>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+            <div class="stat-card">
+                <div class="stat-number">{{ total_downloads|default:0 }}</div>
+                <div class="stat-label">Yuklab olishlar</div>
+                <i class="fas fa-download stat-icon"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <ul class="nav nav-tabs" id="journalTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="issues-tab" data-bs-toggle="tab" data-bs-target="#issues-content"
+                    type="button" role="tab">
+                <i class="fas fa-bookmark me-2"></i>Sonlar
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="articles-tab" data-bs-toggle="tab" data-bs-target="#articles-content"
+                    type="button" role="tab">
+                <i class="fas fa-newspaper me-2"></i>Maqolalar
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="editors-tab" data-bs-toggle="tab" data-bs-target="#editors-content"
+                    type="button" role="tab">
+                <i class="fas fa-users me-2"></i>Tahrirchilar
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="policies-tab" data-bs-toggle="tab" data-bs-target="#policies-content"
+                    type="button" role="tab">
+                <i class="fas fa-gavel me-2"></i>Siyosat
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="settings-tab" data-bs-toggle="tab" data-bs-target="#settings-content"
+                    type="button" role="tab">
+                <i class="fas fa-cog me-2"></i>Jurnal Sozlamalari
+            </button>
+        </li>
+    </ul>
+
+    <!-- Tab Content -->
+    <div class="tab-content mt-4" id="journalTabsContent">
+        <!-- Issues Tab -->
+        <div class="tab-pane fade show active" id="issues-content" role="tabpanel">
+            <div class="admin-card">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4>Sonlar Boshqaruvi</h4>
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addIssueModal">
+                        <i class="fas fa-plus me-2"></i>Yangi Son
+                    </button>
+                </div>
+                <!-- Loading Spinner -->
+                <div id="issues-loading" class="loading-spinner" style="display: none;">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Yuklanmoqda...</span>
+                    </div>
+                </div>
+                <!-- Issues Table -->
+                <div class="table-responsive">
+                    <table class="table table-hover" id="issues-table">
+                        <thead>
+                        <tr>
+                            <th>Jild</th>
+                            <th>Son</th>
+                            <th>Yil</th>
+                            <th>Nashr Sanasi</th>
+                            <th>Maqolalar</th>
+                            <th>Holati</th>
+                            <th>Amallar</th>
+                        </tr>
+                        </thead>
+                        <tbody id="issues-table-body">
+                        <!-- Issues will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+                <!-- Issues Pagination -->
+                <nav aria-label="Issues pagination">
+                    <ul class="pagination justify-content-center mt-4" id="issues-pagination"></ul>
+                </nav>
+            </div>
+        </div>
+
+        <!-- Articles Tab -->
+        <div class="tab-pane fade" id="articles-content" role="tabpanel">
+            <div class="admin-card">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4>Maqolalar Boshqaruvi</h4>
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addArticleModal">
+                        <i class="fas fa-plus me-2"></i>Yangi Maqola
+                    </button>
+                </div>
+                <!-- Search and Filter -->
+                <div class="row g-3 mb-4">
+                    <div class="col-md-4">
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="article-search"
+                                   placeholder="Maqola qidirish...">
+                            <button class="btn btn-outline-secondary" type="button" id="clear-article-search">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-select" id="article-issue-filter">
+                            <option value="">Barcha sonlar</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-select" id="article-status-filter">
+                            <option value="">Barcha holatlar</option>
+                            <option value="published">Nashr etilgan</option>
+                            <option value="draft">Tayyorlanayotgan</option>
+                            <option value="featured">Tanlangan</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <button class="btn btn-primary w-100" onclick="loadArticles(1)">
+                            <i class="fas fa-search me-2"></i>Qidirish
+                        </button>
+                    </div>
+                </div>
+                <!-- Loading Spinner -->
+                <div id="articles-loading" class="loading-spinner" style="display: none;">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Yuklanmoqda...</span>
+                    </div>
+                </div>
+                <!-- Articles Table -->
+                <div class="table-responsive">
+                    <table class="table table-hover" id="articles-table">
+                        <thead>
+                        <tr>
+                            <th>Sarlavha</th>
+                            <th>Mualliflar</th>
+                            <th>Son</th>
+                            <th>Sana</th>
+                            <th>Ko'rishlar</th>
+                            <th>Holati</th>
+                            <th>Amallar</th>
+                        </tr>
+                        </thead>
+                        <tbody id="articles-table-body">
+                        <!-- Articles will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+                <!-- Articles Pagination -->
+                <nav aria-label="Articles pagination">
+                    <ul class="pagination justify-content-center mt-4" id="articles-pagination"></ul>
+                </nav>
+            </div>
+        </div>
+
+        <!-- Editors Tab -->
+        <div class="tab-pane fade" id="editors-content" role="tabpanel">
+            <div class="admin-card">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4>Tahrirchilar Boshqaruvi</h4>
+                    <div>
+                        <button class="btn btn-success me-2" onclick="exportEditors()">
+                            <i class="fas fa-download me-2"></i>Export CSV
+                        </button>
+                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addEditorModal">
+                            <i class="fas fa-plus me-2"></i>Yangi Muharrir
+                        </button>
+                    </div>
+                </div>
+                <!-- Loading Spinner -->
+                <div id="editors-loading" class="loading-spinner" style="display: none;">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Yuklanmoqda...</span>
+                    </div>
+                </div>
+                <!-- Editors List -->
+                <div id="editors-list">
+                    <!-- Editors will be loaded here -->
+                </div>
+                <!-- No Editors Message -->
+                <div id="no-editors-message" class="empty-state" style="display: none;">
+                    <i class="fas fa-users"></i>
+                    <h5>Tahrirchilar topilmadi</h5>
+                    <p>Jurnalga yangi muharrir qo'shing</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Policies Tab -->
+        <div class="tab-pane fade" id="policies-content" role="tabpanel">
+            <div class="admin-card">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4>Siyosat Boshqaruvi</h4>
+                    <div>
+                        <button class="btn btn-success me-2" onclick="exportPolicies()">
+                            <i class="fas fa-download me-2"></i>Export CSV
+                        </button>
+                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addPolicyModal">
+                            <i class="fas fa-plus me-2"></i>Yangi Siyosat
+                        </button>
+                    </div>
+                </div>
+                <!-- Loading Spinner -->
+                <div id="policies-loading" class="loading-spinner" style="display: none;">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Yuklanmoqda...</span>
+                    </div>
+                </div>
+                <!-- Policies List -->
+                <div id="policies-list">
+                    <!-- Policies will be loaded here -->
+                </div>
+                <!-- No Policies Message -->
+                <div id="no-policies-message" class="empty-state" style="display: none;">
+                    <i class="fas fa-gavel"></i>
+                    <h5>Siyosatlar topilmadi</h5>
+                    <p>Jurnal uchun yangi siyosat qo'shing</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Tab -->
+        <div class="tab-pane fade" id="settings-content" role="tabpanel">
+            <div class="admin-card">
+                <h4 class="mb-4">Jurnal Sozlamalari</h4>
+                <form id="journalSettingsForm" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <input type="hidden" name="journal_id" value="{{ journal.id }}">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="journal_title" class="form-label">Jurnal Nomi *</label>
+                            <input type="text" class="form-control" id="journal_title" name="title"
+                                   value="{{ journal.title }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="journal_initials" class="form-label">Qisqa Nomi</label>
+                            <input type="text" class="form-control" id="journal_initials" name="initials"
+                                   value="{{ journal.initials|default:'' }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="journal_url_slug" class="form-label">URL Slug *</label>
+                            <input type="text" class="form-control" id="journal_url_slug" name="url_slug"
+                                   value="{{ journal.url_slug }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="journal_abbreviation" class="form-label">Qisqartma</label>
+                            <input type="text" class="form-control" id="journal_abbreviation" name="abbreviation"
+                                   value="{{ journal.abbreviation|default:'' }}">
+                        </div>
+                        <div class="col-12">
+                            <label for="journal_description" class="form-label">Tavsif</label>
+                            <div id="journal-description-editor" style="height: 200px;"></div>
+                            <textarea class="form-control" id="journal_description" name="description"
+                                      style="display: none;">{{ journal.description|default:'' }}</textarea>
+                        </div>
+                        <div class="col-12">
+                            <label for="journal_meta_description" class="form-label">Meta Tavsif</label>
+                            <textarea class="form-control" id="journal_meta_description" name="meta_description"
+                                      rows="3">{{ journal.meta_description|default:'' }}</textarea>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="journal_contact_email" class="form-label">Kontakt Email</label>
+                            <input type="email" class="form-control" id="journal_contact_email" name="contact_email"
+                                   value="{{ journal.contact_email|default:'' }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="journal_website" class="form-label">Veb-sayt</label>
+                            <input type="url" class="form-control" id="journal_website" name="website"
+                                   value="{{ journal.website|default:'' }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="journal_publisher" class="form-label">Nashriyotchi</label>
+                            <input type="text" class="form-control" id="journal_publisher" name="publisher"
+                                   value="{{ journal.publisher|default:'' }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="journal_issn_print" class="form-label">ISSN (Bosma)</label>
+                            <input type="text" class="form-control" id="journal_issn_print" name="issn_print"
+                                   value="{{ journal.issn_print|default:'' }}" placeholder="1234-5678">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="journal_issn_online" class="form-label">ISSN (Onlayn)</label>
+                            <input type="text" class="form-control" id="journal_issn_online" name="issn_online"
+                                   value="{{ journal.issn_online|default:'' }}" placeholder="1234-5678">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="journal_cover_image" class="form-label">Muqova Rasmi</label>
+                            <input type="file" class="form-control" id="journal_cover_image" name="cover_image"
+                                   accept="image/*">
+                            {% if journal.cover_image %}
+                                <small class="form-text text-muted">Hozirgi
+                                    muqova: {{ journal.cover_image.name }}</small>
+                            {% endif %}
+                        </div>
+                        <div class="col-12">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="journal_is_active"
+                                               name="is_active" {% if journal.is_active %}checked{% endif %}>
+                                        <label class="form-check-label" for="journal_is_active">Faol jurnal</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="journal_is_open_access"
+                                               name="is_open_access" {% if journal.is_open_access %}checked{% endif %}>
+                                        <label class="form-check-label" for="journal_is_open_access">Ochiq
+                                            kirish</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>Sozlamalarni Saqlash
+                            </button>
+                            <a href="/admin/" class="btn btn-secondary ms-2">
+                                <i class="fas fa-arrow-left me-2"></i>Orqaga
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Issue Modal -->
+<div class="modal fade" id="addIssueModal" tabindex="-1" aria-labelledby="addIssueModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addIssueModalLabel">
+                    <i class="fas fa-bookmark me-2"></i>Yangi Son Qo'shish
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addIssueForm" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <input type="hidden" name="journal_id" value="{{ journal.id }}">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label for="issue_volume" class="form-label">Jild *</label>
+                            <input type="number" class="form-control" id="issue_volume" name="volume" min="1" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="issue_number" class="form-label">Son *</label>
+                            <input type="number" class="form-control" id="issue_number" name="number" min="1" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="issue_year" class="form-label">Yil *</label>
+                            <input type="number" class="form-control" id="issue_year" name="year" min="2000" max="2030"
+                                   required value="{{ current_year }}">
+                        </div>
+                        <div class="col-12">
+                            <label for="issue_title" class="form-label">Son Sarlavhasi</label>
+                            <input type="text" class="form-control" id="issue_title" name="title"
+                                   placeholder="Ixtiyoriy son sarlavhasi">
+                        </div>
+                        <div class="col-12">
+                            <label for="issue_description" class="form-label">Tavsif</label>
+                            <div id="issue-description-editor" style="height: 150px;"></div>
+                            <textarea class="form-control" id="issue_description" name="description"
+                                      style="display: none;" placeholder="Son haqida qisqacha ma'lumot"></textarea>
+                        </div>
+                        <div class="col-12">
+                            <label for="issue_date_published" class="form-label">Nashr sanasi</label>
+                            <input type="date" class="form-control" id="issue_date_published" name="date_published">
+                        </div>
+                        <div class="col-12">
+                            <label for="issue_cover_image" class="form-label">Son Muqovasi</label>
+                            <input type="file" class="form-control" id="issue_cover_image" name="cover_image"
+                                   accept="image/*">
+                            <small class="form-text text-muted">JPG, PNG yoki GIF formatida rasm yuklang</small>
+                        </div>
+                        <div class="col-12">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="issue_is_published"
+                                       name="is_published" checked>
+                                <label class="form-check-label" for="issue_is_published">Darhol nashr etish</label>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Bekor qilish</button>
+                <button type="submit" form="addIssueForm" class="btn btn-primary">
+                    <i class="fas fa-save me-2"></i>Saqlash
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Issue Modal -->
+<div class="modal fade" id="editIssueModal" tabindex="-1" aria-labelledby="editIssueModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editIssueModalLabel">
+                    <i class="fas fa-edit me-2"></i>Sonni Tahrirlash
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editIssueForm" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <input type="hidden" name="issue_id" value="">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Jild *</label>
+                            <input type="number" class="form-control" name="volume" min="1" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Son *</label>
+                            <input type="number" class="form-control" name="number" min="1" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Yil *</label>
+                            <input type="number" class="form-control" name="year" min="2000" max="2030" required>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Sarlavha</label>
+                            <input type="text" class="form-control" name="title"
+                                   placeholder="Son sarlavhasi (ixtiyoriy)">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Tavsif</label>
+                            <div id="edit-issue-description-editor" style="height: 150px;"></div>
+                            <textarea class="form-control" name="description" style="display: none;"
+                                      placeholder="Son haqida qisqacha ma'lumot (ixtiyoriy)"></textarea>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Nashr sanasi</label>
+                            <input type="date" class="form-control" name="date_published">
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-check form-switch mt-4">
+                                <input class="form-check-input" type="checkbox" name="is_published"
+                                       id="edit_issue_is_published">
+                                <label class="form-check-label" for="edit_issue_is_published">Nashr etish</label>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Muqova rasmi</label>
+                            <input type="file" class="form-control" name="cover_image" accept="image/*">
+                            <div class="form-text">JPG, PNG yoki GIF formatida rasm yuklang</div>
+                            <div id="current-cover-info" class="mt-2" style="display: none;">
+                                <small class="text-muted"><i class="fas fa-image me-1"></i>Hozirgi muqova mavjud</small>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Bekor qilish</button>
+                <button type="submit" form="editIssueForm" class="btn btn-primary">
+                    <i class="fas fa-save me-2"></i>Saqlash
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Article Modal -->
+<div class="modal fade" id="addArticleModal" tabindex="-1" aria-labelledby="addArticleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addArticleModalLabel">
+                    <i class="fas fa-newspaper me-2"></i>Yangi Maqola Qo'shish
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addArticleForm" enctype="multipart/form-data" novalidate>
+                    {% csrf_token %}
+                    <input type="hidden" name="journal_id" value="{{ journal.id }}">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label for="article_title" class="form-label">Maqola Sarlavhasi *</label>
+                            <input type="text" class="form-control" id="article_title" name="title" required>
+                        </div>
+                        <div class="col-12">
+                            <label for="article_subtitle" class="form-label">Qo'shimcha Sarlavha</label>
+                            <input type="text" class="form-control" id="article_subtitle" name="subtitle">
+                        </div>
+                        <div class="col-12">
+                            <label for="article_abstract" class="form-label">Abstrakt *</label>
+                            <div id="article-abstract-editor" style="height: 200px;"></div>
+                            <textarea class="form-control" id="article_abstract" name="abstract" style="display: none;"
+                                      required placeholder="Maqola qisqacha mazmuni"></textarea>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">References (Adabiyotlar)</label>
+                            <div id="article-references-editor" style="height: 200px;"></div>
+                            <textarea name="references" id="article_references" class="d-none"></textarea>
+                        </div>
+                        <div class="col-12">
+                            <label for="article_keywords" class="form-label">Kalit so'zlar</label>
+                            <input type="text" class="form-control" id="article_keywords" name="keywords"
+                                   placeholder="Vergul bilan ajrating">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="article_date_published" class="form-label">Nashr sanasi *</label>
+                            <input type="date" class="form-control" id="article_date_published" name="date_published"
+                                   required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="article_first_page" class="form-label">Boshlanish sahifasi</label>
+                            <input type="number" class="form-control" id="article_first_page" name="first_page" min="1">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="article_last_page" class="form-label">Tugash sahifasi</label>
+                            <input type="number" class="form-control" id="article_last_page" name="last_page" min="1">
+                        </div>
+
+                        <!-- Authors Section -->
+                        <div class="col-12">
+                            <h5 class="mt-4">Mualliflar *</h5>
+
+                            <!-- New: Existing Author Selector -->
+                            <div class="mb-3">
+                                <label for="existing_author_select" class="form-label">Mavjud Muallifni Qo'shish</label>
+                                <select class="form-select" id="existing_author_select">
+                                    <option value="">Muallifni izlash va tanlash...</option>
+                                    <!-- Options will be populated by JavaScript -->
+                                </select>
+                                <small class="form-text text-muted">Mavjud mualliflar bazasidan izlab tanlang.</small>
+                            </div>
+
+                            <!-- Dynamic Author Rows Container -->
+                            <div id="authors-container">
+                                <!-- Default first author row -->
+                                <div class="author-row mb-3 border rounded p-3">
+                                    <div class="row g-2">
+                                        <div class="col-md-3">
+                                            <input type="text" class="form-control" name="author_first_name[]"
+                                                   placeholder="Ism *" required>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <input type="text" class="form-control" name="author_middle_name[]"
+                                                   placeholder="Sharif">
+                                        </div>
+                                        <div class="col-md-3">
+                                            <input type="text" class="form-control" name="author_last_name[]"
+                                                   placeholder="Familiya *" required>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <button type="button" class="btn btn-danger btn-sm remove-author">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="row g-2 mt-2">
+                                        <div class="col-md-4">
+                                            <input type="email" class="form-control" name="author_email[]"
+                                                   placeholder="Email">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <input type="text" class="form-control" name="author_affiliation[]"
+                                                   placeholder="Tashkilot">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <input type="text" class="form-control" name="author_orcid[]"
+                                                   placeholder="ORCID ID">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Button to add new author manually -->
+                            <button type="button" id="add-author" class="btn btn-outline-primary mt-2">
+                                <i class="fas fa-plus me-2"></i>Yangi Muallif Qo'shish
+                            </button>
+                        </div>
+
+                        <!-- File Upload -->
+                        <div class="col-12">
+                            <label for="article_pdf_file" class="form-label">PDF Fayl *</label>
+                            <div class="file-upload-area" id="file-upload-area">
+                                <i class="fas fa-cloud-upload-alt fa-3x mb-3 text-muted"></i>
+                                <p class="mb-2">PDF faylni bu yerga sudrab tashlang yoki tanlash uchun bosing</p>
+                                <input type="file" class="form-control" id="article_pdf_file" name="pdf_file"
+                                       accept=".pdf" required style="display: none;">
+                                <div id="file-info" style="display: none;">
+                                    <span id="file-name"></span>
+                                    <button type="button" class="btn btn-sm btn-danger ms-2" onclick="hideFileInfo()">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- SEO Settings -->
+                        <div class="col-12">
+                            <h5 class="mt-4">SEO va Nashr Sozlamalari</h5>
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <label for="article_meta_description" class="form-label">Meta Description *</label>
+                                    <textarea class="form-control" id="article_meta_description" name="meta_description"
+                                              rows="3" placeholder="150-160 belgi ideal"></textarea>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="article_doi" class="form-label">DOI</label>
+                                    <input type="text" class="form-control" id="article_doi" name="doi"
+                                           placeholder="Google Scholar uchun muhim">
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="article_language" class="form-label">Til</label>
+                                    <select class="form-select" id="article_language" name="language">
+                                        <option value="uz">O'zbek</option>
+                                        <option value="en">English</option>
+                                        <option value="ru">Русский</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-check form-switch mt-3">
+                                        <input class="form-check-input" type="checkbox" id="article_featured"
+                                               name="featured">
+                                        <label class="form-check-label" for="article_featured">Asosiy maqola</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-check form-switch mt-3">
+                                        <input class="form-check-input" type="checkbox" id="article_open_access"
+                                               name="open_access">
+                                        <label class="form-check-label" for="article_open_access">Ochiq kirish</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-check form-switch mt-3">
+                                        <input class="form-check-input" type="checkbox" id="article_is_published"
+                                               name="is_published">
+                                        <label class="form-check-label" for="article_is_published">Darhol nashr
+                                            etish</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Bekor qilish</button>
+                <button type="submit" form="addArticleForm" class="btn btn-primary">
+                    <i class="fas fa-save me-2"></i>Maqolani Saqlash
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- EDIT ARTICLE MODAL -->
+<div class="modal fade" id="editArticleModal" tabindex="-1" aria-labelledby="editArticleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <form id="editArticleForm" enctype="multipart/form-data">
+            <input type="hidden" name="article_id"/>
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editArticleModalLabel">Maqolani tahrirlash</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Yopish"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="edit-title" class="form-label">Sarlavha *</label>
+                            <input type="text" class="form-control" id="edit-title" name="title" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="edit-subtitle" class="form-label">Sub Sarlavha</label>
+                            <input type="text" class="form-control" id="edit-subtitle" name="subtitle">
+                        </div>
+                        <div class="col-md-12">
+                            <label for="edit-abstract" class="form-label">Annotatsiya</label>
+                            <div id="edit-article-abstract-editor" style="height: 200px;"></div>
+                            <textarea class="form-control" id="edit-abstract" name="abstract"
+                                      style="display: none;"></textarea>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">References (Adabiyotlar)</label>
+                            <div id="edit-article-references-editor" style="height: 200px;"></div>
+                            <textarea name="references" id="edit-references" class="d-none"></textarea>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="edit-keywords" class="form-label">Kalit so'zlar</label>
+                            <input type="text" class="form-control" id="edit-keywords" name="keywords">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="edit-meta-description" class="form-label">Meta Tavsif</label>
+                            <input type="text" class="form-control" id="edit-meta-description" name="meta_description">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="edit-doi" class="form-label">DOI</label>
+                            <input type="text" class="form-control" id="edit-doi" name="doi">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="edit-language" class="form-label">Til</label>
+                            <input type="text" class="form-control" id="edit-language" name="language">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="edit-date-published" class="form-label">Nashr sanasi</label>
+                            <input type="date" class="form-control" id="edit-date-published" name="date_published">
+                        </div>
+                        <div class="col-md-3">
+                            <label for="edit-first-page" class="form-label">Birinchi sahifa</label>
+                            <input type="number" class="form-control" id="edit-first-page" name="first_page">
+                        </div>
+                        <div class="col-md-3">
+                            <label for="edit-last-page" class="form-label">Oxirgi sahifa</label>
+                            <input type="number" class="form-control" id="edit-last-page" name="last_page">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="edit-issue" class="form-label">Jurnal Soni</label>
+                            <select class="form-control" id="edit-issue" name="issue"></select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="edit-journal" class="form-label">Jurnal ID</label>
+                            <input type="text" class="form-control" id="edit-journal" name="journal" readonly>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="edit-pdf-file" class="form-label">Maqola PDF (Yangi yuklash uchun)</label>
+                            <input type="file" class="form-control" id="edit-pdf-file" name="pdf_file"
+                                   accept="application/pdf">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Opsiyalar</label>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" name="featured" id="edit-featured">
+                                <label class="form-check-label" for="edit-featured">Tanlangan</label>
+                            </div>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" name="open_access"
+                                       id="edit-open-access">
+                                <label class="form-check-label" for="edit-open-access">Ochiq kirish</label>
+                            </div>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" name="is_published"
+                                       id="edit-is-published">
+                                <label class="form-check-label" for="edit-is-published">Nashr etish</label>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Mualliflar</label>
+                            <div id="edit-authors-container"></div>
+                            <button type="button" id="add-author-edit" class="btn btn-outline-primary btn-sm mt-2">
+                                <i class="fas fa-plus"></i> Muallif qo'shish
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Bekor qilish</button>
+                    <button type="submit" class="btn btn-primary">Saqlash</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Add Editor Modal -->
+<div class="modal fade" id="addEditorModal" tabindex="-1" aria-labelledby="addEditorModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addEditorModalLabel">
+                    <i class="fas fa-user-plus me-2"></i>Yangi Muharrir Qo'shish
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addEditorForm">
+                    {% csrf_token %}
+                    <div class="row g-3">
+                        <!-- Personal Information -->
+                        <div class="col-12"><h6 class="text-primary border-bottom pb-2">Shaxsiy Ma'lumotlar</h6></div>
+                        <div class="col-md-4">
+                            <label for="editor_first_name" class="form-label">Ism *</label>
+                            <input type="text" class="form-control" id="editor_first_name" name="first_name" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="editor_middle_name" class="form-label">Sharif</label>
+                            <input type="text" class="form-control" id="editor_middle_name" name="middle_name">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="editor_last_name" class="form-label">Familiya *</label>
+                            <input type="text" class="form-control" id="editor_last_name" name="last_name" required>
+                        </div>
+                        <!-- Professional Information -->
+                        <div class="col-12"><h6 class="text-primary border-bottom pb-2 mt-4">Kasbiy Ma'lumotlar</h6>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="editor_title" class="form-label">Ilmiy daraja/unvon</label>
+                            <input type="text" class="form-control" id="editor_title" name="title"
+                                   placeholder="Prof., Dr., PhD">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="editor_position" class="form-label">Lavozim</label>
+                            <input type="text" class="form-control" id="editor_position" name="position">
+                        </div>
+                        <div class="col-12">
+                            <label for="editor_affiliation" class="form-label">Tashkilot</label>
+                            <input type="text" class="form-control" id="editor_affiliation" name="affiliation">
+                        </div>
+                        <!-- Editor Information -->
+                        <div class="col-12"><h6 class="text-primary border-bottom pb-2 mt-4">Muharrir Ma'lumotlari</h6>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="editor_type" class="form-label">Muharrir turi *</label>
+                            <select class="form-select" id="editor_type" name="editor_type" required>
+                                <option value="">Tanlang...</option>
+                            </select>
+                        </div>
+                        <!-- Status -->
+                        <div class="col-12"><h6 class="text-primary border-bottom pb-2 mt-4">Holat</h6></div>
+                        <div class="col-12">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="editor_is_active" name="is_active"
+                                       checked>
+                                <label class="form-check-label" for="editor_is_active">Faol muharrir</label>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Bekor qilish</button>
+                <button type="submit" form="addEditorForm" class="btn btn-primary">
+                    <i class="fas fa-save me-2"></i>Saqlash
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Editor Modal -->
+<div class="modal fade" id="editEditorModal" tabindex="-1" aria-labelledby="editEditorModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editEditorModalLabel">
+                    <i class="fas fa-user-edit me-2"></i>Muharrirni Tahrirlash
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editEditorForm">
+                    {% csrf_token %}
+                    <input type="hidden" name="editor_id" value="">
+                    <div class="row g-3">
+                        <!-- Personal Information -->
+                        <div class="col-12"><h6 class="text-primary border-bottom pb-2">Shaxsiy Ma'lumotlar</h6></div>
+                        <div class="col-md-4">
+                            <label class="form-label">Ism *</label>
+                            <input type="text" class="form-control" name="first_name" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Sharif</label>
+                            <input type="text" class="form-control" name="middle_name">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Familiya *</label>
+                            <input type="text" class="form-control" name="last_name" required>
+                        </div>
+                        <!-- Professional Information -->
+                        <div class="col-12"><h6 class="text-primary border-bottom pb-2 mt-4">Kasbiy Ma'lumotlar</h6>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Ilmiy daraja/unvon</label>
+                            <input type="text" class="form-control" name="title">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Lavozim</label>
+                            <input type="text" class="form-control" name="position">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Tashkilot</label>
+                            <input type="text" class="form-control" name="affiliation">
+                        </div>
+                        <!-- Editor Information -->
+                        <div class="col-12"><h6 class="text-primary border-bottom pb-2 mt-4">Muharrir Ma'lumotlari</h6>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Muharrir turi *</label>
+                            <select class="form-select" name="editor_type" required>
+                            </select>
+                        </div>
+                        <!-- Status -->
+                        <div class="col-12"><h6 class="text-primary border-bottom pb-2 mt-4">Holat</h6></div>
+                        <div class="col-12">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" name="is_active">
+                                <label class="form-check-label">Faol muharrir</label>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Bekor qilish</button>
+                <button type="submit" form="editEditorForm" class="btn btn-primary">
+                    <i class="fas fa-save me-2"></i>Saqlash
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Policy Modal -->
+<div class="modal fade" id="addPolicyModal" tabindex="-1" aria-labelledby="addPolicyModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addPolicyModalLabel">
+                    <i class="fas fa-gavel me-2"></i>Yangi Siyosat Qo'shish
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addPolicyForm">
+                    {% csrf_token %}
+                    <div class="row g-3">
+                        <!-- Basic Information -->
+                        <div class="col-12"><h6 class="text-primary border-bottom pb-2">Asosiy Ma'lumotlar</h6></div>
+                        <div class="col-md-6">
+                            <label for="policy_type" class="form-label">Siyosat turi *</label>
+                            <select class="form-select" id="policy_type" name="policy_type" required>
+                                <option value="">Tanlang...</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="policy_language" class="form-label">Til</label>
+                            <select class="form-select" id="policy_language" name="language">
+                                <option value="uz">O'zbek</option>
+                                <option value="en">English</option>
+                                <option value="ru">Русский</option>
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label for="policy_title" class="form-label">Sarlavha</label>
+                            <input type="text" class="form-control" id="policy_title" name="title"
+                                   placeholder="Avtomatik yaratiladi">
+                        </div>
+                        <div class="col-12">
+                            <label for="policy_short_description" class="form-label">Qisqacha tavsif</label>
+                            <div id="policy-short-description-editor" style="height: 100px;"></div>
+                            <textarea class="form-control" id="policy_short_description" name="short_description"
+                                      style="display: none;" placeholder="Siyosat haqida qisqacha"></textarea>
+                        </div>
+                        <!-- Content -->
+                        <div class="col-12"><h6 class="text-primary border-bottom pb-2 mt-4">Mazmun</h6></div>
+                        <div class="col-12">
+                            <label for="policy_content" class="form-label">Asosiy mazmun *</label>
+                            <div id="policy-content-editor" style="height: 300px;"></div>
+                            <textarea class="form-control" id="policy_content" name="content" style="display: none;"
+                                      required placeholder="Siyosatning to'liq mazmuni"></textarea>
+                        </div>
+                        <div class="col-12">
+                            <label for="policy_requirements" class="form-label">Talablar</label>
+                            <div id="policy-requirements-editor" style="height: 200px;"></div>
+                            <textarea class="form-control" id="policy_requirements" name="requirements"
+                                      style="display: none;" placeholder="Aniq talablar ro'yxati"></textarea>
+                        </div>
+                        <div class="col-12">
+                            <label for="policy_examples" class="form-label">Misollar</label>
+                            <div id="policy-examples-editor" style="height: 200px;"></div>
+                            <textarea class="form-control" id="policy_examples" name="examples" style="display: none;"
+                                      placeholder="Amaliy misollar"></textarea>
+                        </div>
+                        <!-- SEO and Meta -->
+                        <div class="col-12"><h6 class="text-primary border-bottom pb-2 mt-4">SEO va Meta</h6></div>
+                        <div class="col-12">
+                            <label for="policy_meta_description" class="form-label">Meta tavsif</label>
+                            <textarea class="form-control" id="policy_meta_description" name="meta_description" rows="2"
+                                      placeholder="160 belgigacha"></textarea>
+                        </div>
+                        <div class="col-12">
+                            <label for="policy_keywords" class="form-label">Kalit so'zlar</label>
+                            <input type="text" class="form-control" id="policy_keywords" name="keywords"
+                                   placeholder="Vergul bilan ajrating">
+                        </div>
+                        <!-- Settings -->
+                        <div class="col-12"><h6 class="text-primary border-bottom pb-2 mt-4">Sozlamalar</h6></div>
+                        <div class="col-md-4">
+                            <label for="policy_version" class="form-label">Versiya</label>
+                            <input type="text" class="form-control" id="policy_version" name="version" value="1.0">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="policy_order" class="form-label">Tartib raqami</label>
+                            <input type="number" class="form-control" id="policy_order" name="order" value="0" min="0">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="policy_effective_date" class="form-label">Kuchga kirgan sana</label>
+                            <input type="date" class="form-control" id="policy_effective_date" name="effective_date">
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-check form-switch mt-3">
+                                <input class="form-check-input" type="checkbox" id="policy_is_active" name="is_active"
+                                       checked>
+                                <label class="form-check-label" for="policy_is_active">Faol siyosat</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-check form-switch mt-3">
+                                <input class="form-check-input" type="checkbox" id="policy_is_public" name="is_public"
+                                       checked>
+                                <label class="form-check-label" for="policy_is_public">Ommaviy ko'rish</label>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Bekor qilish</button>
+                <button type="submit" form="addPolicyForm" class="btn btn-primary">
+                    <i class="fas fa-save me-2"></i>Saqlash
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Policy Modal -->
+<div class="modal fade" id="editPolicyModal" tabindex="-1" aria-labelledby="editPolicyModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editPolicyModalLabel">
+                    <i class="fas fa-gavel me-2"></i>Siyosatni Tahrirlash
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editPolicyForm">
+                    {% csrf_token %}
+                    <input type="hidden" name="policy_id" value="">
+                    <div class="row g-3">
+                        <!-- Basic Information -->
+                        <div class="col-12"><h6 class="text-primary border-bottom pb-2">Asosiy Ma'lumotlar</h6></div>
+                        <div class="col-md-6">
+                            <label class="form-label">Siyosat turi *</label>
+                            <select class="form-select" name="policy_type" required>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Til</label>
+                            <select class="form-select" name="language">
+                                <option value="uz">O'zbek</option>
+                                <option value="en">English</option>
+                                <option value="ru">Русский</option>
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Sarlavha</label>
+                            <input type="text" class="form-control" name="title">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Qisqacha tavsif</label>
+                            <div id="edit-policy-short-description-editor" style="height: 100px;"></div>
+                            <textarea class="form-control" name="short_description" style="display: none;"></textarea>
+                        </div>
+                        <!-- Content -->
+                        <div class="col-12"><h6 class="text-primary border-bottom pb-2 mt-4">Mazmun</h6></div>
+                        <div class="col-12">
+                            <label class="form-label">Asosiy mazmun *</label>
+                            <div id="edit-policy-content-editor" style="height: 300px;"></div>
+                            <textarea class="form-control" name="content" style="display: none;" required></textarea>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Talablar</label>
+                            <div id="edit-policy-requirements-editor" style="height: 200px;"></div>
+                            <textarea class="form-control" name="requirements" style="display: none;"></textarea>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Misollar</label>
+                            <div id="edit-policy-examples-editor" style="height: 200px;"></div>
+                            <textarea class="form-control" name="examples" style="display: none;"></textarea>
+                        </div>
+                        <!-- SEO and Meta -->
+                        <div class="col-12"><h6 class="text-primary border-bottom pb-2 mt-4">SEO va Meta</h6></div>
+                        <div class="col-12">
+                            <label class="form-label">Meta tavsif</label>
+                            <textarea class="form-control" name="meta_description" rows="2"></textarea>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Kalit so'zlar</label>
+                            <input type="text" class="form-control" name="keywords">
+                        </div>
+                        <!-- Settings -->
+                        <div class="col-12"><h6 class="text-primary border-bottom pb-2 mt-4">Sozlamalar</h6></div>
+                        <div class="col-md-4">
+                            <label class="form-label">Versiya</label>
+                            <input type="text" class="form-control" name="version">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Tartib raqami</label>
+                            <input type="number" class="form-control" name="order" min="0">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Kuchga kirgan sana</label>
+                            <input type="date" class="form-control" name="effective_date">
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-check form-switch mt-3">
+                                <input class="form-check-input" type="checkbox" name="is_active">
+                                <label class="form-check-label">Faol siyosat</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-check form-switch mt-3">
+                                <input class="form-check-input" type="checkbox" name="is_public">
+                                <label class="form-check-label">Ommaviy ko'rish</label>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Bekor qilish</button>
+                <button type="submit" form="editPolicyForm" class="btn btn-primary">
+                    <i class="fas fa-save me-2"></i>Saqlash
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-labelledby="deleteConfirmModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteConfirmModalLabel">
+                    <i class="fas fa-exclamation-triangle me-2"></i>O'chirishni tasdiqlash
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p id="deleteConfirmMessage"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Bekor qilish</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">O'chirish</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quill Editor JS -->
+<script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+<script src="{% static 'js/admin_journal.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    (function () {
+        const toggle = document.getElementById('journalsDropdown');
+        const menu = document.getElementById('journalsListContainer');
+        // Use Bootstrap's show.bs.dropdown so it runs before the menu opens
+        toggle.addEventListener('show.bs.dropdown', () => {
+            // only load once
+            if (menu.dataset.loaded) return;
+            // show a spinner while loading
+            menu.innerHTML = `
+        <li class="dropdown-item text-center">
+          <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+          Yuklanmoqda…
+        </li>`;
+            fetch('/admin/journals/list/')
+                .then(r => r.json())
+                .then(data => {
+                    if (!data.success) {
+                        throw new Error(data.error || 'Nomaʼlum xatolik');
+                    }
+                    menu.innerHTML = data.journals.map(j => `
+            <li>
+              <a class="dropdown-item" href="/admin/journals/${j.id}/manage/">
+                ${j.title}
+              </a>
+            </li>
+          `).join('');
+                    menu.dataset.loaded = 'true';
+                })
+                .catch(err => {
+                    console.error(err);
+                    menu.innerHTML = `
+            <li><span class="dropdown-item text-danger">
+              Jurnallarni yuklashda xatolik
+            </span></li>`;
+                });
+        });
+    })();
+</script>
+
+<style>
+    .stat-card {
+        background: white;
+        border-radius: 10px;
+        padding: 2rem;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        position: relative;
+        overflow: hidden;
+        transition: transform 0.3s ease;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .stat-number {
+        font-size: 2.5rem;
+        font-weight: bold;
+        color: #333;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+        color: #666;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .stat-icon {
+        position: absolute;
+        right: 1rem;
+        top: 1rem;
+        font-size: 2rem;
+        color: #e0e0e0;
+    }
+
+    .admin-card {
+        background: white;
+        border-radius: 10px;
+        padding: 2rem;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        margin-bottom: 2rem;
+    }
+
+    .admin-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 1.5rem 0;
+        margin-bottom: 0;
+    }
+
+    .breadcrumb {
+        background: transparent;
+        padding: 0;
+        margin: 0;
+    }
+
+    .breadcrumb-item a {
+        color: rgba(255, 255, 255, 0.8);
+        text-decoration: none;
+    }
+
+    .breadcrumb-item.active {
+        color: white;
+    }
+
+    .nav-tabs .nav-link {
+        border: none;
+        color: #666;
+        font-weight: 500;
+        margin-right: 1rem;
+        border-radius: 8px 8px 0 0;
+    }
+
+    .nav-tabs .nav-link.active {
+        background: #667eea;
+        color: white;
+        border: none;
+    }
+
+    .table th {
+        border-top: none;
+        font-weight: 600;
+        color: #333;
+        background: #f8f9fa;
+    }
+
+    .btn-group .btn {
+        margin-right: 0.25rem;
+    }
+
+    .file-upload-area {
+        border: 2px dashed #ddd;
+        border-radius: 8px;
+        padding: 2rem;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .file-upload-area:hover {
+        border-color: #667eea;
+        background: #f8f9ff;
+    }
+
+    .author-row {
+        background: #f8f9fa;
+        border: 1px solid #e9ecef !important;
+    }
+
+    .modal-header {
+        background: #667eea;
+        color: white;
+    }
+
+    .modal-header .btn-close {
+        filter: invert(1);
+    }
+
+    .editor-card {
+        border: 1px solid #e9ecef;
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .editor-card:hover {
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        transform: translateY(-2px);
+    }
+
+    .policy-card {
+        border-left: 4px solid #667eea;
+        background: #f8f9ff;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        border-radius: 0 8px 8px 0;
+        transition: all 0.3s ease;
+    }
+
+    .policy-card:hover {
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .badge-editor-type {
+        font-size: 0.75rem;
+        padding: 0.25rem 0.5rem;
+    }
+
+    .policy-meta {
+        font-size: 0.85rem;
+        color: #666;
+    }
+
+    .content-preview {
+        background: #f8f9fa;
+        padding: 1rem;
+        border-radius: 6px;
+        border-left: 3px solid #667eea;
+        margin: 1rem 0;
+        font-size: 0.9rem;
+        line-height: 1.5;
+    }
+
+    .loading-spinner {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 3rem;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 3rem;
+        color: #666;
+    }
+
+    .empty-state i {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        color: #ddd;
+    }
+
+    /* Quill Editor Styling */
+    .ql-editor {
+        min-height: 120px;
+        font-size: 14px;
+        line-height: 1.5;
+    }
+
+    .ql-toolbar {
+        border-top: 1px solid #ccc;
+        border-left: 1px solid #ccc;
+        border-right: 1px solid #ccc;
+        border-radius: 4px 4px 0 0;
+    }
+
+    .ql-container {
+        border-bottom: 1px solid #ccc;
+        border-left: 1px solid #ccc;
+        border-right: 1px solid #ccc;
+        border-radius: 0 0 4px 4px;
+    }
+</style>
+
+</body>
+</html>

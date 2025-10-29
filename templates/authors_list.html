@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+
+{% block title %}Mualliflar | Akademik Jurnal Platforma{% endblock %}
+
+{% block content %}
+    <div class="authors-container">
+        <!-- Search Section -->
+        <div class="container mb-4">
+            <!-- Ensure the form has an ID if you need to target it in JS -->
+            <form method="GET" action="{% url 'allauthors' %}" id="author-search-form" class="search-box mx-auto">
+                <div class="input-group">
+                    <!-- Crucially, the input MUST have id="author-search" -->
+                    <input type="text" class="form-control" id="author-search" name="q"
+                           value="{{ request.GET.q|default:'' }}" placeholder="Muallif ismi yoki familiyasi..."
+                           aria-label="Search authors">
+                    <button class="btn btn-primary" type="submit" id="author-search-btn">
+                        <i class="fas fa-search me-1"></i> Qidirish
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Authors List -->
+        <div class="container authors-list" id="authors-grid">
+            <div class="row">
+                {% for author in authors %}
+                    <div class="col-md-6 author-card-item mb-4"
+                         data-name="{{ author.first_name|lower }} {{ author.last_name|lower }}">
+                        <div class="card h-100 border-0 shadow-sm">
+                            <div class="row g-0 h-100">
+                                <div class="col-4 col-md-4 d-flex align-items-center justify-content-center p-3">
+                                    <div class="author-image">
+                                        {% if author.photo %}
+                                            <img src="{{ author.photo.url }}" class="author-image img"
+                                                 alt="{{ author.get_full_name }}">
+                                        {% else %}
+                                            <div class="author-placeholder"
+                                                 style="background-color: #006d77; height: 100%; display: flex; align-items: center; justify-content: center; color: white; border-radius: 50%;">
+                                                <span class="fw-bold fs-6">Rasm yo'q</span>
+                                            </div>
+                                        {% endif %}
+
+                                    </div>
+                                </div>
+
+                                <!-- Author Details Column -->
+                                <div class="col-8 col-md-8">
+                                    <div class="card-body d-flex flex-column h-100">
+                                        <div>
+                                            <h3 class="author-name card-title">{{ author.first_name }} {{ author.last_name }}</h3>
+                                            <p class="author-position card-text mb-1 fw-medium">{{ author.position }}</p>
+                                            <p class="author-affiliation card-text text-muted small mb-3">{{ author.affiliation }}</p>
+                                        </div>
+
+                                        <!-- Stats and Links Section -->
+                                        <div class="author-contact-row mt-auto d-flex flex-wrap align-items-center gap-2">
+                                            <div class="fact-badge d-inline-flex align-items-center px-3 py-2 bg-light border rounded-pill">
+                                                <i class="fas fa-file-alt me-2 text-primary"></i>
+                                                <span class="fw-medium">{{ author.article_count }}</span>
+                                            </div>
+
+                                            {% if author.email %}
+                                                <a href="mailto:{{ author.email }}"
+                                                   class="btn btn-sm btn-outline-primary" title="E-mail">
+                                                    <i class="fas fa-envelope"></i>
+                                                </a>
+                                            {% endif %}
+
+                                            {% if author.website %}
+                                                <a href="{{ author.website }}" target="_blank"
+                                                   class="btn btn-sm btn-outline-secondary" title="Web-sayt">
+                                                    <i class="fas fa-globe"></i>
+                                                </a>
+                                            {% endif %}
+
+                                            <a href="{% url 'author_detail' author_id=author.id %}"
+                                               class="btn btn-sm btn-primary ms-auto">
+                                                Profil <i class="fas fa-arrow-right ms-1"></i>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% empty %}
+                    <div class="col-12 text-center py-5">
+                        <div class="alert alert-info mx-auto" style="max-width: 600px;">
+                            <i class="fas fa-users fa-3x mb-3"></i>
+                            <h4>Hozirda faol mualliflar mavjud emas</h4>
+                            <p class="mb-0">Tez orada yangi mualliflar qo'shiladi</p>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+
+    </div>
+{% endblock %}

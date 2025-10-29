@@ -1,0 +1,448 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Imfaktor Admin - Kirish</title>
+
+    <!-- Bootstrap & FontAwesome -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --primary-color: #667eea;
+            --secondary-color: #764ba2;
+        }
+
+        body {
+            background: var(--primary-gradient);
+            font-family: 'Lora', serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .login-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+            max-width: 900px;
+            width: 100%;
+            display: flex;
+            min-height: 500px;
+        }
+
+        .login-left {
+            flex: 1;
+            background: var(--primary-gradient);
+            padding: 60px 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .login-left::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="20" cy="20" r="1" fill="white" opacity="0.1"/><circle cx="80" cy="40" r="1" fill="white" opacity="0.1"/><circle cx="40" cy="80" r="1" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+            animation: float 20s infinite linear;
+        }
+
+        @keyframes float {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        .login-logo {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            z-index: 2;
+            position: relative;
+        }
+
+        .login-subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            z-index: 2;
+            position: relative;
+        }
+
+        .login-right {
+            flex: 1;
+            padding: 60px 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .login-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .login-description {
+            color: #6c757d;
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+            position: relative;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .form-control {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 15px;
+            padding: 15px 20px 15px 50px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+            background: white;
+            outline: none;
+        }
+
+        .form-icon {
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6c757d;
+            font-size: 18px;
+            z-index: 10;
+        }
+
+        .btn-login {
+            background: var(--primary-gradient);
+            border: none;
+            border-radius: 15px;
+            padding: 15px 30px;
+            font-weight: 600;
+            font-size: 16px;
+            color: white;
+            width: 100%;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+            color: white;
+        }
+
+        .btn-login:disabled {
+            opacity: 0.7;
+            transform: none;
+            cursor: not-allowed;
+        }
+
+        .alert {
+            border-radius: 15px;
+            border: none;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+        }
+
+        .alert-danger {
+            background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+            color: #721c24;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #6c757d;
+            cursor: pointer;
+            font-size: 16px;
+            z-index: 10;
+        }
+
+        .password-toggle:hover {
+            color: var(--primary-color);
+        }
+
+        .remember-me {
+            display: flex;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        .remember-me input[type="checkbox"] {
+            margin-right: 10px;
+            transform: scale(1.2);
+        }
+
+        .forgot-password {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .forgot-password a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .forgot-password a:hover {
+            text-decoration: underline;
+        }
+
+        .version-info {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: rgba(255,255,255,0.7);
+            font-size: 0.9rem;
+            z-index: 2;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .login-container {
+                flex-direction: column;
+                margin: 10px;
+                min-height: auto;
+            }
+
+            .login-left {
+                padding: 40px 20px;
+                min-height: 200px;
+            }
+
+            .login-right {
+                padding: 40px 20px;
+            }
+
+            .login-logo {
+                font-size: 2rem;
+            }
+
+            .login-title {
+                font-size: 1.5rem;
+            }
+        }
+
+        /* Loading Animation */
+        .loading-spinner {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #ffffff;
+            border-top: 2px solid transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <!-- Left Side - Branding -->
+        <div class="login-left">
+            <div class="login-logo">
+                <i class="fas fa-graduation-cap me-3"></i>
+                Imfaktor
+            </div>
+            <div class="login-subtitle">
+                Ilmiy Nashrlar Portali<br>
+                Boshqaruv Paneli
+            </div>
+            <div class="version-info">
+                v1.0 - Admin Panel
+            </div>
+        </div>
+
+        <!-- Right Side - Login Form -->
+        <div class="login-right">
+            <h2 class="login-title">Tizimga Kirish</h2>
+            <p class="login-description">
+                Admin paneliga kirish uchun login ma'lumotlaringizni kiriting
+            </p>
+
+            <!-- Error Messages -->
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <!-- Login Form -->
+            <form method="post" id="loginForm">
+                {% csrf_token %}
+
+                <div class="form-group">
+                    <label class="form-label" for="username">Foydalanuvchi nomi</label>
+                    <div style="position: relative;">
+                        <i class="fas fa-user form-icon"></i>
+                        <input type="text"
+                               class="form-control"
+                               id="username"
+                               name="username"
+                               placeholder="Login nomingizni kiriting"
+                               required
+                               autocomplete="username">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="password">Parol</label>
+                    <div style="position: relative;">
+                        <i class="fas fa-lock form-icon"></i>
+                        <input type="password"
+                               class="form-control"
+                               id="password"
+                               name="password"
+                               placeholder="Parolingizni kiriting"
+                               required
+                               autocomplete="current-password">
+                        <button type="button" class="password-toggle" onclick="togglePassword()">
+                            <i class="fas fa-eye" id="passwordIcon"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="remember-me">
+                    <input type="checkbox" id="remember" name="remember">
+                    <label for="remember">Meni eslab qol</label>
+                </div>
+
+                <button type="submit" class="btn-login" id="loginBtn">
+                    <span class="loading-spinner" id="loadingSpinner"></span>
+                    <span id="loginText">
+                        <i class="fas fa-sign-in-alt me-2"></i>
+                        Kirish
+                    </span>
+                </button>
+
+{#                <div class="forgot-password">#}
+{#                    <a href="#" onclick="showCredentials()">#}
+{#                        <i class="fas fa-question-circle me-1"></i>#}
+{#                        Login ma'lumotlarini unutdingizmi?#}
+{#                    </a>#}
+{#                </div>#}
+            </form>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // Toggle password visibility
+        function togglePassword() {
+            const passwordInput = document.getElementById('password');
+            const passwordIcon = document.getElementById('passwordIcon');
+
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                passwordIcon.className = 'fas fa-eye-slash';
+            } else {
+                passwordInput.type = 'password';
+                passwordIcon.className = 'fas fa-eye';
+            }
+        }
+
+        // Show credentials (for demo purposes)
+        function showCredentials() {
+            alert('Default credentials:\nUsername: admin\nPassword: 123admin\n\n(These are set in your .env file)');
+        }
+
+        // Form submission with loading state
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            const loginBtn = document.getElementById('loginBtn');
+            const loadingSpinner = document.getElementById('loadingSpinner');
+            const loginText = document.getElementById('loginText');
+
+            // Show loading state
+            loginBtn.disabled = true;
+            loadingSpinner.style.display = 'inline-block';
+            loginText.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Tekshirilmoqda...';
+
+            // If you want to add client-side validation
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            if (!username || !password) {
+                e.preventDefault();
+
+                // Reset button state
+                loginBtn.disabled = false;
+                loadingSpinner.style.display = 'none';
+                loginText.innerHTML = '<i class="fas fa-sign-in-alt me-2"></i>Kirish';
+
+                alert('Iltimos, barcha maydonlarni to\'ldiring!');
+            }
+        });
+
+        // Auto-focus on username field
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('username').focus();
+
+            // Add enter key listener
+            document.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    document.getElementById('loginForm').submit();
+                }
+            });
+        });
+
+        // Add some interactive effects
+        document.querySelectorAll('.form-control').forEach(input => {
+            input.addEventListener('focus', function() {
+                this.parentElement.style.transform = 'scale(1.02)';
+            });
+
+            input.addEventListener('blur', function() {
+                this.parentElement.style.transform = 'scale(1)';
+            });
+        });
+    </script>
+</body>
+</html>

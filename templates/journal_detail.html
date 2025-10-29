@@ -1,0 +1,472 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ journal.title }} | Akademik Jurnal Platforma{% endblock %}
+{% block meta_description %}
+    {{ journal.meta_description|default:journal.description|safe|striptags|truncatewords:30 }}{% endblock %}
+{% block meta_keywords %}{{ journal.title }}, {{ journal.issn_print }}, ilmiy jurnal, tadqiqot{% endblock %}
+
+<!-- HighWire Press meta tags for Google Scholar -->
+{% block highwire_meta %}
+    <meta name="citation_title" content="{{ journal.title }}">
+    <meta name="citation_journal_title" content="{{ journal.title }}">
+    {% if journal.issn_print %}
+        <meta name="citation_issn" content="{{ journal.issn_print }}">
+    {% endif %}
+    {% if journal.issn_online %}
+        <meta name="citation_issn" content="{{ journal.issn_online }}">
+    {% endif %}
+    <meta name="citation_publisher" content="{{ journal.publisher|default:'Akademik Jurnal Platforma' }}">
+    <meta name="citation_language" content="{{ journal.primary_locale|default:'uz' }}">
+{% endblock %}
+
+<!-- Structured Data -->
+{% block structured_data %}
+    <script type="application/ld+json">
+        {
+          "@context": "https://schema.org",
+          "@type": "Periodical",
+          "name": "{{ journal.title|escapejs }}",
+          "issn": [
+            "{{ journal.issn_print|default:'' }}",
+            "{{ journal.issn_online|default:'' }}"
+          ],
+          "publisher": {
+            "@type": "Organization",
+            "name": "{{ journal.publisher|default:'Akademik Jurnal Platforma'|escapejs }}"
+          },
+          "description": "{{ journal.description|striptags|truncatechars:200|escapejs }}",
+          "url": "{{ request.build_absolute_uri|escapejs }}"
+        }
+    </script>
+{% endblock %}
+
+{% block content %}
+    <!-- Journal Hero Section -->
+    <section class="journal-detail-hero">
+        <div class="container">
+            <div class="journal-hero-content">
+                <div class="journal-hero-grid">
+                    <div class="journal-hero-cover">
+                        {% if journal.cover_image %}
+                            <img src="{{ journal.cover_image.url }}" alt="{{ journal.title }} Cover">
+                        {% else %}
+                            <div class="placeholder-cover">
+                                <i class="fas fa-book fa-3x"></i>
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="journal-hero-info">
+                        <h1>{{ journal.title }}</h1>
+                        {% if journal.initials or journal.abbreviation %}
+                            <div class="journal-hero-meta">
+                                {% if journal.initials %}
+                                    <span class="journal-hero-badge">{{ journal.initials }}</span>
+                                {% endif %}
+                                {% if journal.abbreviation %}
+                                    <span class="journal-hero-badge">{{ journal.abbreviation }}</span>
+                                {% endif %}
+                                {% if journal.issn_print %}
+                                    <span class="journal-hero-badge">ISSN: {{ journal.issn_print }}</span>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                        {% if journal.description %}
+                            <p class="lead">{{ journal.description|safe|truncatewords:40 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section Navigation -->
+    <div class="container">
+        <div class="section-navigation-journal">
+            <button class="nav-button-journal active" data-section="current-section">
+                <i class="fas fa-newspaper"></i> Joriy Son
+            </button>
+            <button class="nav-button-journal" data-section="about-section">
+                <i class="fas fa-info-circle"></i> Jurnal Haqida
+            </button>
+            {% if editors %}
+                <button class="nav-button-journal" data-section="editors-section">
+                    <i class="fas fa-users"></i> Tahrirchilar
+                </button>
+            {% endif %}
+            {% if policies %}
+                <button class="nav-button-journal" data-section="policies-section">
+                    <i class="fas fa-file-contract"></i> Siyosatlar
+                </button>
+            {% endif %}
+            <button class="nav-button-journal" data-section="archives-section">
+                <i class="fas fa-archive"></i> Arxiv Sonlar
+            </button>
+        </div>
+    </div>
+
+    <!-- Current Section -->
+    <div id="current-section" class="content-section-journal active">
+        <div class="container">
+            {% if current_issue %}
+                <div class="current-issue-card">
+                    <div class="issue-header-journal">
+                        <div class="issue-cover-small">
+                            {% if current_issue.cover_image %}
+                                <img src="{{ current_issue.cover_image.url }}"
+                                     alt="{{ current_issue.title|default:current_issue.full_citation }}">
+                            {% else %}
+                                <div class="placeholder-cover" style="background: var(--border-color);">
+                                    <i class="fas fa-book"></i>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="issue-info-journal">
+                            <h3 class="issue-title">
+                                {% if current_issue.title %}
+                                    {{ current_issue.title }}
+                                {% else %}
+                                    Joriy Son: {{ current_issue.full_citation }}
+                                {% endif %}
+                            </h3>
+                            <div class="issue-meta-journal">
+                                <span><i
+                                        class="far fa-calendar"></i> {{ current_issue.date_published|date:"d.m.Y" }}</span>
+                                <span><i class="far fa-file-alt"></i> {{ current_articles.paginator.count|default:0 }} maqola</span>
+                            </div>
+                            {% if current_issue.description %}
+                                <p>{{ current_issue.description|safe }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="articles-list-journal">
+                    <h3 class="section-title">Sondagi Maqolalar</h3>
+                    {% if current_articles %}
+                        {% for article in current_articles %}
+                            <div class="article-item-journal">
+                                <h4 class="article-title-journal">
+                                    <a href="{% url 'article_detail' article.id %}">{{ article.title }}</a>
+                                </h4>
+                                <div class="article-authors-journal">
+                                    {% for author in article.authors.all %}
+                                        <span>{{ author.first_name }} {{ author.last_name }}{% if not forloop.last %}
+                                            , {% endif %}</span>
+                                    {% endfor %}
+                                </div>
+                                <div class="article-meta-journal">
+                                    <span><i
+                                            class="far fa-calendar"></i> {{ article.date_published|date:"d.m.Y" }}</span>
+                                    {% if article.views %}
+                                        <span><i class="far fa-eye"></i> {{ article.views }}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endfor %}
+
+                        <!-- Pagination -->
+                        {% if current_articles.has_other_pages %}
+                            <div class="pagination-wrapper mt-4">
+                                <nav aria-label="Page navigation">
+                                    <ul class="pagination justify-content-center">
+                                        {% if current_articles.has_previous %}
+                                            <li class="page-item">
+                                                <a class="page-link"
+                                                   href="?page={{ current_articles.previous_page_number }}">Oldingi</a>
+                                            </li>
+                                        {% endif %}
+
+                                        {% for num in current_articles.paginator.page_range %}
+                                            {% if current_articles.number == num %}
+                                                <li class="page-item active">
+                                                    <span class="page-link">{{ num }}</span>
+                                                </li>
+                                            {% elif num > current_articles.number|add:'-3' and num < current_articles.number|add:'3' %}
+                                                <li class="page-item">
+                                                    <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                                                </li>
+                                            {% endif %}
+                                        {% endfor %}
+
+                                        {% if current_articles.has_next %}
+                                            <li class="page-item">
+                                                <a class="page-link"
+                                                   href="?page={{ current_articles.next_page_number }}">Keyingi</a>
+                                            </li>
+                                        {% endif %}
+                                    </ul>
+                                </nav>
+                            </div>
+                        {% endif %}
+                    {% else %}
+                        <div class="alert alert-info">Hozirda joriy sonda maqolalar mavjud emas.</div>
+                    {% endif %}
+                </div>
+            {% else %}
+                <div class="container">
+                    <div class="alert alert-info">Hozirda faol son mavjud emas.</div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- About Section -->
+    <div id="about-section" class="content-section-journal">
+        <div class="container">
+            <h2 class="section-title">Jurnal Haqida</h2>
+            <div class="row">
+                <div class="col-md-6">
+                    {% if journal.description %}
+                        <div class="about-content">{{ journal.description|safe }}</div>
+                    {% else %}
+                        <p class="text-muted">Jurnal tavsifi mavjud emas.</p>
+                    {% endif %}
+                </div>
+                <div class="col-md-6">
+                    <h3 class="section-title">Aloqa Ma'lumotlari</h3>
+                    <div class="contact-grid-journal">
+                        {% if journal.contact_email %}
+                            <div class="contact-item-journal">
+                                <div class="contact-label-journal">Email</div>
+                                <div class="contact-value-journal">
+                                    <a href="mailto:{{ journal.contact_email }}">{{ journal.contact_email }}</a>
+                                </div>
+                            </div>
+                        {% endif %}
+                        {% if journal.website %}
+                            <div class="contact-item-journal">
+                                <div class="contact-label-journal">Website</div>
+                                <div class="contact-value-journal">
+                                    <a href="{{ journal.website }}"
+                                       target="_blank">{{ journal.website|truncatechars:30 }}</a>
+                                </div>
+                            </div>
+                        {% endif %}
+                        {% if journal.publisher %}
+                            <div class="contact-item-journal">
+                                <div class="contact-label-journal">Nashriyot</div>
+                                <div class="contact-value-journal">{{ journal.publisher }}</div>
+                            </div>
+                        {% endif %}
+                        {% if journal.issn_online %}
+                            <div class="contact-item-journal">
+                                <div class="contact-label-journal">ISSN (Online)</div>
+                                <div class="contact-value-journal">{{ journal.issn_online }}</div>
+                            </div>
+                        {% endif %}
+                        {% if journal.issn_print %}
+                            <div class="contact-item-journal">
+                                <div class="contact-label-journal">ISSN (Print)</div>
+                                <div class="contact-value-journal">{{ journal.issn_print }}</div>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Editors Section -->
+    {% if editors %}
+        <div id="editors-section" class="content-section-journal">
+            <div class="container">
+                <h2 class="section-title">Tahrirchilar</h2>
+                <div class="editors-grid-journal">
+                    {% for editor in editors %}
+                        <div class="editor-card-journal">
+                            <div class="editor-name-journal">{{ editor.full_name }}</div>
+                            <div class="editor-details-journal">
+                                <div><strong>Turi:</strong> {{ editor.get_editor_type_display }}</div>
+                                {% if editor.title %}
+                                    <div><strong>Daraja:</strong> {{ editor.title }}</div>
+                                {% endif %}
+                                {% if editor.affiliation %}
+                                    <div><strong>Tashkilot:</strong> {{ editor.affiliation }}</div>
+                                {% endif %}
+                                {% if editor.position %}
+                                    <div><strong>Lavozim:</strong> {{ editor.position }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- Policies Section -->
+    {% if policies %}
+        <div id="policies-section" class="content-section-journal">
+            <div class="container">
+                <h2 class="section-title">Siyosatlar va Qoidalar</h2>
+
+                <!-- Policies Navigation -->
+                <div class="policies-sub-navigation">
+                    {% for policy in policies %}
+                        <button class="sub-nav-button active" data-sub-section="policy-sub-{{ policy.id }}">
+                            {{ policy.title|truncatechars:25|safe }}
+                        </button>
+                    {% endfor %}
+                </div>
+
+                <!-- Policy Sub-Sections -->
+                {% for policy in policies %}
+                    <div id="policy-sub-{{ policy.id }}" class="policy-sub-section active">
+                        <div class="policy-card-journal">
+                            <h3 class="policy-title-journal">{{ policy.title|safe }}</h3>
+                            <div class="policy-content-journal">
+                                {% if policy.short_description %}
+                                    <p class="policy-description">{{ policy.short_description|safe }}</p>
+                                {% endif %}
+                                <div class="policy-text">{{ policy.content|safe|linebreaks }}</div>
+                                {% if policy.requirements %}
+                                    <div class="policy-requirements mt-3">
+                                        <strong>Talablar:</strong>
+                                        <div class="mt-2">{{ policy.requirements|safe|linebreaks }}</div>
+                                    </div>
+                                {% endif %}
+                                <div class="policy-meta mt-3 text-muted">
+                                    <small>
+                                        Kuchga kirgan: {{ policy.effective_date|date:"d.m.Y" }} |
+                                        Versiya: {{ policy.version }}
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- Archives Section -->
+    <div id="archives-section" class="content-section-journal">
+        <div class="container">
+            <h2 class="section-title">Arxiv Sonlar</h2>
+            {% if archived_issues %}
+                <div class="articles-list-journal">
+                    {% for issue in archived_issues %}
+                        <div class="current-issue-card archive-issue-card">
+                            <div class="issue-header-journal">
+                                <div class="issue-cover-small">
+                                    {% if issue.cover_image %}
+                                        <img src="{{ issue.cover_image.url }}"
+                                             alt="{{ issue.title|default:issue.full_citation }}">
+                                    {% else %}
+                                        <div class="placeholder-cover" style="background: var(--border-color);">
+                                            <i class="fas fa-book"></i>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="issue-info-journal">
+                                    <h3 class="issue-title">
+                                        <a href="{% url 'issue_detail' journal.url_slug issue.year issue.volume issue.number %}">
+                                            {% if issue.title %}
+                                                {{ issue.title }}
+                                            {% else %}
+                                                Son: {{ issue.full_citation }}
+                                            {% endif %}
+                                        </a>
+                                    </h3>
+                                    <div class="issue-meta-journal">
+                                        <span><i
+                                                class="far fa-calendar"></i> {{ issue.date_published|date:"d.m.Y" }}</span>
+                                        <span><i class="far fa-file-alt"></i> {{ issue.articles.count }} maqola</span>
+                                    </div>
+                                    {% if issue.description %}
+                                        <p>{{ issue.description|safe }}</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="container">
+                    <div class="alert alert-info">Hozirda arxiv sonlar mavjud emas.</div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+    <script>
+        // Main section navigation
+        document.addEventListener('DOMContentLoaded', function () {
+            const navButtons = document.querySelectorAll('.nav-button-journal');
+            const sections = document.querySelectorAll('.content-section-journal');
+
+            navButtons.forEach(button => {
+                button.addEventListener('click', function () {
+                    const targetSectionId = this.getAttribute('data-section');
+
+                    // Hide all sections
+                    sections.forEach(section => {
+                        section.classList.remove('active');
+                    });
+
+                    // Remove active class from all buttons
+                    navButtons.forEach(btn => {
+                        btn.classList.remove('active');
+                    });
+
+                    // Show target section
+                    if (targetSectionId) {
+                        const targetSection = document.getElementById(targetSectionId);
+                        if (targetSection) {
+                            targetSection.classList.add('active');
+                        }
+                    }
+
+                    // Add active class to clicked button
+                    this.classList.add('active');
+
+                    // Smooth scroll to content
+                    const contentSection = document.querySelector('.content-section-journal.active');
+                    if (contentSection) {
+                        contentSection.scrollIntoView({behavior: 'smooth', block: 'nearest'});
+                    }
+                });
+            });
+
+            // Policies sub-navigation
+            const subNavButtons = document.querySelectorAll('.sub-nav-button');
+            const subSections = document.querySelectorAll('.policy-sub-section');
+
+            subNavButtons.forEach(button => {
+                button.addEventListener('click', function () {
+                    const targetSubSectionId = this.getAttribute('data-sub-section');
+
+                    // Hide all sub-sections
+                    subSections.forEach(subSection => {
+                        subSection.classList.remove('active');
+                    });
+
+                    // Remove active class from all sub-nav buttons
+                    subNavButtons.forEach(btn => {
+                        btn.classList.remove('active');
+                    });
+
+                    // Show target sub-section
+                    if (targetSubSectionId) {
+                        const targetSubSection = document.getElementById(targetSubSectionId);
+                        if (targetSubSection) {
+                            targetSubSection.classList.add('active');
+                        }
+                    }
+
+                    // Add active class to clicked sub-nav button
+                    this.classList.add('active');
+
+                    // Smooth scroll to the policies section
+                    const policiesSection = document.getElementById('policies-section');
+                    if (policiesSection) {
+                        policiesSection.scrollIntoView({behavior: 'smooth', block: 'nearest'});
+                    }
+                });
+            });
+        });
+    </script>
+{% endblock %}

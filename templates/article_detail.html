@@ -1,0 +1,374 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ article.title }} - {{ article.issue.journal.title }} - Imfaktor{% endblock %}
+
+{% block meta_description %}{{ article.abstract|safe|striptags|truncatechars:160 }}{% endblock %}
+
+{% block meta_keywords %}{{ article.keywords }}, ilmiy maqola, tadqiqot, {{ article.issue.journal.title }}{% endblock %}
+
+{% block highwire_meta %}
+    <meta name="citation_title" content="{{ article.title }}">
+    <meta name="citation_publication_date" content="{{ article.date_published|date:'Y/m/d' }}">
+    <meta name="citation_journal_title" content="{{ article.issue.journal.title }}">
+    {% if article.issue %}
+        <meta name="citation_volume" content="{{ article.issue.volume }}">
+        <meta name="citation_issue" content="{{ article.issue.number }}">
+    {% endif %}
+    {% if article.first_page %}
+        <meta name="citation_firstpage" content="{{ article.first_page }}">
+    {% endif %}
+    {% if article.last_page %}
+        <meta name="citation_lastpage" content="{{ article.last_page }}">
+    {% endif %}
+    {% if article.main_pdf %}
+        <meta name="citation_pdf_url"
+              content="{{ request.scheme }}://{{ request.get_host }}{{ article.main_pdf.file.url }}">
+    {% endif %}
+    {% for author in article.authors.all %}
+        <meta name="citation_author" content="{{ author.last_name }}, {{ author.first_name }}">
+        {% if author.affiliation %}
+            <meta name="citation_author_institution" content="{{ author.affiliation }}">
+        {% endif %}
+    {% endfor %}
+    {% if article.doi %}
+        <meta name="citation_doi" content="{{ article.doi }}">
+    {% endif %}
+    <meta name="citation_abstract_html_url"
+          content="{{ request.scheme }}://{{ request.get_host }}{% url 'article_detail' article.id %}">
+    {% if article.issue.journal.issn_print %}
+        <meta name="citation_issn" content="{{ article.issue.journal.issn_print }}">
+    {% endif %}
+    <meta name="citation_publisher" content="Imfaktor">
+    {% if article.first_page and article.last_page %}
+        <meta name="citation_pages" content="{{ article.first_page }}-{{ article.last_page }}">
+    {% endif %}
+    <meta name="citation_language" content="uz">
+    {% if keywords %}
+        {% for keyword in keywords %}
+            <meta name="citation_keywords" content="{{ keyword }}">
+        {% endfor %}
+    {% endif %}
+{% endblock %}
+
+{% block structured_data %}
+    <script type="application/ld+json">
+        {
+          "@context": "https://schema.org",
+          "@type": "ScholarlyArticle",
+          "headline": "{{ article.title }}",
+          "name": "{{ article.title }}",
+          "description": "{{ article.abstract|truncatechars:300|safe|escapejs }}",
+          "abstract": "{{ article.abstract|escapejs }}",
+          "url": "{{ request.scheme }}://{{ request.get_host }}{% url 'article_detail' article.id %}",
+          "datePublished": "{{ article.date_published|date:'c' }}",
+          "dateModified": "{{ article.updated_at|date:'c'|default:article.date_published|date:'c' }}",
+          "inLanguage": "uz",
+          "keywords": "{{ article.keywords }}",
+        {% if article.doi %}
+            "identifier": [
+              {
+                "@type": "PropertyValue",
+                "name": "DOI",
+                "value": "{{ article.doi }}"
+              }
+            ],
+            "sameAs": "https://doi.org/{{ article.doi }}",
+        {% endif %}
+        "author": [
+        {% for author in article.authors.all %}
+            {
+              "@type": "Person",
+              "name": "{{ author.first_name }} {{ author.last_name }}",
+                "givenName": "{{ author.first_name }}",
+                "familyName": "{{ author.last_name }}"
+            {% if author.affiliation %},
+                "affiliation": {
+                  "@type": "Organization",
+                  "name": "{{ author.affiliation }}"
+                }
+            {% endif %}
+            }{% if not forloop.last %},{% endif %}
+            {% endfor %}
+        ],
+        "isPartOf": {
+          "@type": "PublicationIssue",
+          "issueNumber": "{{ article.issue.number }}",
+            "isPartOf": {
+              "@type": "PublicationVolume",
+              "volumeNumber": "{{ article.issue.volume }}",
+              "isPartOf": {
+                "@type": "Periodical",
+                "name": "{{ article.issue.journal.title }}",
+                "issn": "{{ article.issue.journal.issn_print|default:'' }}"
+              }
+            }
+          },
+          "publisher": {
+            "@type": "Organization",
+            "name": "Imfaktor",
+            "url": "{{ request.scheme }}://{{ request.get_host }}"
+          },
+        {% if article.main_pdf %}
+            "encoding": {
+              "@type": "MediaObject",
+              "encodingFormat": "application/pdf",
+              "contentUrl": "{{ request.scheme }}://{{ request.get_host }}{{ article.main_pdf.file.url }}"
+            },
+        {% endif %}
+        "pageStart": "{{ article.first_page|default:'' }}",
+          "pageEnd": "{{ article.last_page|default:'' }}",
+          "citation": "{% for author in article.authors.all %}{{ author.last_name }}, {{ author.first_name|first }}.
+        {% if not forloop.last %},
+        {% endif %}{% endfor %} ({{ article.date_published.year }}). {{ article.title }}. {{ article.issue.journal.title }}
+            {% if article.issue %}, {{ article.issue.volume }}({{ article.issue.number }}){% endif %}.
+        {% if article.doi %} https://doi.org/{{ article.doi }}{% endif %}"
+        }
+    </script>
+{% endblock %}
+
+{% block content %}
+    <!-- Article Header -->
+    <section class="article-detail-header">
+        <div class="container">
+            <div class="article-header-box">
+                <h1 class="article-title" itemprop="headline">{{ article.title }}</h1>
+
+                <div class="article-authors-section">
+                    <h2 class="section-subtitle">Mualliflar</h2>
+                    <div class="authors-grid">
+                        {% for author in article.authors.all %}
+                            <div class="author-card-box">
+                                <div class="author-name">
+                                    <a href="{% url 'author_detail' author.id %}" class="author-link">
+                                        {{ author.full_name }}
+                                    </a>
+                                </div>
+                                {% if author.affiliation %}
+                                    <div class="author-affiliation">{{ author.affiliation }}</div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <main class="article-main-content">
+        <div class="container">
+            <div class="article-content-layout">
+                <!-- Left Column - Main Content -->
+                <div class="article-main-column">
+                    <!-- Abstract Section -->
+                    <div class="content-box">
+                        <h2 class="box-title"> Annotatsiya</h2>
+                        <div class="box-content">
+                            <p class="article-abstract" itemprop="abstract">{{ article.abstract|safe }}</p>
+
+                            {% if article.keywords %}
+                                <div class="keywords-section">
+                                    <h3 class="section-subtitle">Kalit so'zlar</h3>
+                                    <div class="keyword-tags">
+                                        {% for keyword in article.get_keywords_list %}
+                                            <span class="keyword-tag">{{ keyword }}</span>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <!-- References Section -->
+                    {% if references %}
+                        <div class="content-box">
+                            <h2 class="box-title"> Qo'llanilgan Adabiyotlar</h2>
+                            <div class="box-content">
+                                <div class="references-content">
+                                    {{ references|safe }}
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    <!-- Citation Section -->
+                    <div class="content-box">
+                        <h2 class="box-title">Iqtibos </h2>
+                        <div class="box-content">
+                            <div class="citation-container">
+                                <p class="citation-text" itemprop="citation">{{ article.citation }}</p>
+                                <button class="btn btn-primary btn-sm copy-btn" onclick="copyCitation()">
+                                    <i class="fas fa-copy me-1"></i> Nusxalash
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PDF Actions -->
+                    {% if article.main_pdf %}
+                        <div class="content-box">
+                            <h2 class="box-title"> PDF Hujjat</h2>
+                            <div class="box-content">
+                                <div class="pdf-actions">
+                                    <a href="{% url 'view_pdf' article.id %}" class="btn btn-primary" target="_blank"
+                                       rel="noopener noreferrer">
+                                        <i class="fas fa-eye me-2"></i> Ko'rish
+                                    </a>
+                                    <a href="{% url 'download_pdf' article.id %}" class="btn btn-outline-primary">
+                                        <i class="fas fa-download me-2"></i> Yuklab olish
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    <!-- Related Articles -->
+                    {% if related_articles %}
+                        <div class="content-box">
+                            <h2 class="box-title"> O'xshash maqolalar</h2>
+                            <div class="box-content">
+                                <div class="related-articles-grid">
+                                    {% for related in related_articles %}
+                                        <div class="related-article-card">
+                                            <h3 class="related-article-title">
+                                                <a href="{% url 'article_detail' related.id %}">{{ related.title|truncatechars:60 }}</a>
+                                            </h3>
+                                            <div class="related-article-meta">
+                                                <span class="article-authors">
+                                                    {% for author in related.authors.all %}
+                                                        {{ author.full_name }}{% if not forloop.last %}, {% endif %}
+                                                    {% endfor %}
+                                                </span>
+                                                <span class="article-date">{{ related.date_published|date:"Y-m-d" }}</span>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Right Column - Sidebar -->
+                <div class="article-sidebar-column">
+                    <!-- Meta Information -->
+                    <div class="sidebar-box">
+                        <h3 class="sidebar-title">Maqola haqida</h3>
+                        <div class="meta-list">
+                            <div class="meta-item">
+                                <span class="meta-label">Jurnal:</span>
+                                <a href="{% url 'journal_detail' article.issue.journal.url_slug %}" class="meta-value">
+                                    {{ article.issue.journal.title }}
+                                </a>
+                            </div>
+                            <div class="meta-item">
+                                <span class="meta-label">Tom/Soni:</span>
+                                <span class="meta-value">{{ article.issue.volume }}/{{ article.issue.number }}</span>
+                            </div>
+                            <div class="meta-item">
+                                <span class="meta-label">Nashr sanasi:</span>
+                                <span class="meta-value">{{ article.date_published|date:"Y-m-d" }}</span>
+                            </div>
+                            {% if article.doi %}
+                                <div class="meta-item">
+                                    <span class="meta-label">DOI:</span>
+                                    <a href="{{ article.doi }}" target="_blank"
+                                       class="meta-value doi-link">
+                                        {{ article.doi }}
+                                    </a>
+                                </div>
+                            {% endif %}
+                            <div class="meta-item">
+                                <span class="meta-label">Ko'rishlar:</span>
+                                <span class="meta-value" id="view-count">{{ article.views }}</span>
+                            </div>
+                            <div class="meta-item">
+                                <span class="meta-label">Yuklamalar:</span>
+                                <span class="meta-value">{{ article.downloads }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Share Section -->
+                    <div class="sidebar-box">
+                        <h3 class="sidebar-title">Ulashish</h3>
+                        <div class="share-buttons">
+                            <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri|urlencode }}"
+                               class="share-icon facebook" target="_blank" rel="noopener" title="Facebookda ulashish">
+                                <i class="fab fa-facebook-f"></i>
+                            </a>
+                            <a href="https://twitter.com/intent/tweet?url={{ request.build_absolute_uri|urlencode }}&text={{ article.title|urlencode }}"
+                               class="share-icon twitter" target="_blank" rel="noopener" title="Twitterda ulashish">
+                                <i class="fab fa-twitter"></i>
+                            </a>
+                            <a href="https://www.linkedin.com/shareArticle?mini=true&url={{ request.build_absolute_uri|urlencode }}&title={{ article.title|urlencode }}"
+                               class="share-icon linkedin" target="_blank" rel="noopener" title="LinkedIn'da ulashish">
+                                <i class="fab fa-linkedin-in"></i>
+                            </a>
+                            <button class="share-icon copy-link" onclick="copyLink('{{ request.build_absolute_uri }}')"
+                                    title="Link nusxalash">
+                                <i class="fas fa-link"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+{% endblock %}
+
+{% block extra_js %}
+    <script>
+        function copyCitation() {
+            const citationText = document.querySelector('.citation-text').textContent;
+            navigator.clipboard.writeText(citationText).then(() => {
+                alert('Sitata nusxalandi!');
+            }).catch(err => {
+                console.error('Nusxalashda xato:', err);
+                // Fallback for older browsers
+                const textArea = document.createElement('textarea');
+                textArea.value = citationText;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                alert('Sitata nusxalandi!');
+            });
+        }
+
+        function copyLink(url) {
+            navigator.clipboard.writeText(url).then(() => {
+                alert('Link nusxalandi!');
+            }).catch(err => {
+                console.error('Nusxalashda xato:', err);
+                // Fallback for older browsers
+                const textArea = document.createElement('textarea');
+                textArea.value = url;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                alert('Link nusxalandi!');
+            });
+        }
+
+        // Increment views on load
+        document.addEventListener('DOMContentLoaded', function () {
+            fetch('{% url "increment_views" article.id %}', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                    'Content-Type': 'application/json'
+                }
+            }).then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        document.getElementById('view-count').textContent = data.views;
+                    }
+                })
+                .catch(error => {
+                    console.error('View count update failed:', error);
+                });
+        });
+    </script>
+{% endblock %}
