@@ -65,8 +65,8 @@
     --spacing-xxl: 48px;
 
     /* Container Widths */
-    --container-width: 1200px;
-    --container-narrow: 800px;
+    --container-width: 1400px;
+    --container-narrow: 900px;
 }
 
 /* ==================== */
@@ -290,21 +290,17 @@ img {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background-color: var(--primary-blue);
-    color: var(--bg-main);
-    font-size: 18px;
+    width: 36px;
+    height: 36px;
+    color: var(--text-primary);
+    font-size: 22px;
     transition: var(--transition);
     text-decoration: none;
 }
 
 .social-icon-link:hover {
-    background-color: var(--primary-blue-dark);
-    color: var(--bg-main);
-    transform: translateY(-3px);
-    box-shadow: var(--shadow-blue);
+    color: var(--primary-blue);
+    transform: scale(1.2);
 }
 
 /* ==================== */
@@ -932,7 +928,7 @@ textarea.form-control {
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-sm);
+    gap: var(--spacing-xs);
 }
 
 .article-title {
@@ -961,6 +957,7 @@ textarea.form-control {
     color: var(--text-secondary);
     font-size: var(--font-size-base);
     font-weight: 500;
+    margin: 0;
 }
 
 .author {
@@ -979,6 +976,8 @@ textarea.form-control {
     font-size: var(--font-size-small);
     color: var(--text-light);
     line-height: 1.5;
+    margin: 0;
+    padding: 0;
 }
 
 .article-meta-small .journal-info {
@@ -1761,9 +1760,9 @@ textarea.form-control {
 /* 21. ARTICLE DETAIL PAGE */
 /* ==================== */
 .article-detail-header {
-    background-color: var(--bg-grey);
-    padding: var(--spacing-xl) 0;
-    border-bottom: 2px solid var(--border-color);
+    background-color: var(--bg-light);
+    padding: var(--spacing-xxl) 0;
+    border-bottom: 1px solid var(--border-color);
 }
 
 .article-header-box {
@@ -1772,6 +1771,49 @@ textarea.form-control {
     padding: var(--spacing-xl);
     box-shadow: var(--shadow-md);
     border: 1px solid var(--border-color);
+}
+
+.article-header-box-new {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.article-detail-title {
+    font-size: 32px;
+    color: var(--primary-black);
+    line-height: 1.3;
+    margin-bottom: var(--spacing-lg);
+    font-weight: 700;
+    font-family: 'Lora', Georgia, serif;
+}
+
+.article-authors-list {
+    font-size: var(--font-size-large);
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
+.author-item-detail {
+    display: inline;
+}
+
+.author-link-detail {
+    color: var(--primary-blue);
+    text-decoration: none;
+    font-weight: 500;
+    transition: var(--transition);
+}
+
+.author-link-detail:hover {
+    color: var(--primary-blue-dark);
+    text-decoration: underline;
+}
+
+.author-affiliation-inline {
+    color: var(--text-light);
+    font-size: var(--font-size-base);
+    font-weight: 400;
+    margin-left: 4px;
 }
 
 .article-title {
@@ -1837,15 +1879,55 @@ textarea.form-control {
 }
 
 .box-title {
-    font-size: 22px;
+    font-size: 20px;
     color: var(--primary-black);
     margin-bottom: var(--spacing-md);
     padding-bottom: var(--spacing-sm);
     border-bottom: 2px solid var(--border-color);
+    font-weight: 600;
 }
 
 .box-content {
     margin-top: var(--spacing-md);
+}
+
+.box-content-abstract {
+    margin-top: 0;
+}
+
+.box-content-abstract .article-abstract {
+    margin-bottom: var(--spacing-md);
+}
+
+.keywords-section-inline {
+    padding-top: var(--spacing-md);
+    border-top: 1px solid var(--border-color);
+    margin-top: var(--spacing-md);
+    display: flex;
+    align-items: flex-start;
+    gap: var(--spacing-sm);
+}
+
+.keywords-label {
+    color: var(--text-primary);
+    font-size: var(--font-size-base);
+    white-space: nowrap;
+    padding-top: 4px;
+}
+
+.citation-container-sidebar {
+    background-color: var(--bg-card);
+    padding: var(--spacing-md);
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border-color);
+}
+
+.citation-text-sidebar {
+    font-size: var(--font-size-small);
+    color: var(--text-primary);
+    line-height: 1.6;
+    margin-bottom: var(--spacing-md);
+    font-family: 'Courier New', monospace;
 }
 
 .content-item {

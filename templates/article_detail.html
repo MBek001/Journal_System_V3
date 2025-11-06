@@ -131,25 +131,20 @@
     <!-- Article Header -->
     <section class="article-detail-header">
         <div class="container">
-            <div class="article-header-box">
-                <h1 class="article-title" itemprop="headline">{{ article.title }}</h1>
+            <div class="article-header-box-new">
+                <h1 class="article-detail-title">{{ article.title }}</h1>
 
-                <div class="article-authors-section">
-                    <h2 class="section-subtitle">Mualliflar</h2>
-                    <div class="authors-grid">
-                        {% for author in article.authors.all %}
-                            <div class="author-card-box">
-                                <div class="author-name">
-                                    <a href="{% url 'author_detail' author.id %}" class="author-link">
-                                        {{ author.full_name }}
-                                    </a>
-                                </div>
-                                {% if author.affiliation %}
-                                    <div class="author-affiliation">{{ author.affiliation }}</div>
-                                {% endif %}
-                            </div>
-                        {% endfor %}
-                    </div>
+                <div class="article-authors-list">
+                    {% for author in article.authors.all %}
+                        <span class="author-item-detail">
+                            <a href="{% url 'author_detail' author.id %}" class="author-link-detail">
+                                {{ author.full_name }}
+                            </a>
+                            {% if author.affiliation %}
+                                <span class="author-affiliation-inline">({{ author.affiliation }})</span>
+                            {% endif %}{% if not forloop.last %};{% endif %}
+                        </span>
+                    {% endfor %}
                 </div>
             </div>
         </div>
@@ -163,21 +158,20 @@
                 <div class="article-main-column">
                     <!-- Abstract Section -->
                     <div class="content-box">
-                        <h2 class="box-title"> Annotatsiya</h2>
-                        <div class="box-content">
+                        <h2 class="box-title">Annotatsiya</h2>
+                        <div class="box-content-abstract">
                             <p class="article-abstract" itemprop="abstract">{{ article.abstract|safe }}</p>
-
-                            {% if article.keywords %}
-                                <div class="keywords-section">
-                                    <h3 class="section-subtitle">Kalit so'zlar</h3>
-                                    <div class="keyword-tags">
-                                        {% for keyword in article.get_keywords_list %}
-                                            <span class="keyword-tag">{{ keyword }}</span>
-                                        {% endfor %}
-                                    </div>
-                                </div>
-                            {% endif %}
                         </div>
+                        {% if article.keywords %}
+                            <div class="keywords-section-inline">
+                                <strong class="keywords-label">Kalit so'zlar:</strong>
+                                <div class="keyword-tags">
+                                    {% for keyword in article.get_keywords_list %}
+                                        <span class="keyword-tag">{{ keyword }}</span>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        {% endif %}
                     </div>
                     <!-- References Section -->
                     {% if references %}
@@ -190,19 +184,6 @@
                             </div>
                         </div>
                     {% endif %}
-
-                    <!-- Citation Section -->
-                    <div class="content-box">
-                        <h2 class="box-title">Iqtibos </h2>
-                        <div class="box-content">
-                            <div class="citation-container">
-                                <p class="citation-text" itemprop="citation">{{ article.citation }}</p>
-                                <button class="btn btn-primary btn-sm copy-btn" onclick="copyCitation()">
-                                    <i class="fas fa-copy me-1"></i> Nusxalash
-                                </button>
-                            </div>
-                        </div>
-                    </div>
 
                     <!-- PDF Actions -->
                     {% if article.main_pdf %}
@@ -289,6 +270,17 @@
                         </div>
                     </div>
 
+                    <!-- Citation Section -->
+                    <div class="sidebar-box">
+                        <h3 class="sidebar-title">Iqtibos</h3>
+                        <div class="citation-container-sidebar">
+                            <p class="citation-text-sidebar" itemprop="citation">{{ article.citation }}</p>
+                            <button class="btn btn-primary btn-sm w-100 copy-btn" onclick="copyCitation()">
+                                <i class="fas fa-copy me-1"></i> Nusxalash
+                            </button>
+                        </div>
+                    </div>
+
                     <!-- Share Section -->
                     <div class="sidebar-box">
                         <h3 class="sidebar-title">Ulashish</h3>
@@ -320,7 +312,7 @@
 {% block extra_js %}
     <script>
         function copyCitation() {
-            const citationText = document.querySelector('.citation-text').textContent;
+            const citationText = document.querySelector('.citation-text-sidebar').textContent;
             navigator.clipboard.writeText(citationText).then(() => {
                 alert('Sitata nusxalandi!');
             }).catch(err => {
