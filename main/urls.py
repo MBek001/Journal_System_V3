@@ -13,4 +13,7 @@ urlpatterns = [
     path('allauthors', views.authors_list, name='allauthors'),
     path('tt', views.test_diploma_view, name='testing'),
 
+    # SEO URLs
+    path('sitemap.xml', views.sitemap_view, name='sitemap'),
+    path('robots.txt', views.robots_txt_view, name='robots'),
 ]

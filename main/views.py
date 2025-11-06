@@ -421,3 +421,37 @@ def test_diploma_view(request):
         return HttpResponse("Diploma sent successfully!")
 
     return render(request, "tt.html")
+
+
+def sitemap_view(request):
+    """Generate dynamic sitemap.xml"""
+    from django.urls import reverse
+
+    # Get all articles, journals, authors
+    articles = Article.objects.filter(status='published').select_related('issue__journal')
+    journals = Journal.objects.all()
+    authors = Author.objects.all()
+
+    context = {
+        'articles': articles,
+        'journals': journals,
+        'authors': authors,
+        'domain': request.get_host(),
+        'protocol': 'https' if request.is_secure() else 'http',
+    }
+    return render(request, 'sitemap.xml', context, content_type='application/xml')
+
+
+def robots_txt_view(request):
+    """Generate robots.txt"""
+    domain = request.get_host()
+    protocol = 'https' if request.is_secure() else 'http'
+
+    lines = [
+        "User-agent: *",
+        "Allow: /",
+        "",
+        "# Sitemaps",
+        f"Sitemap: {protocol}://{domain}/sitemap.xml",
+    ]
+    return HttpResponse("\n".join(lines), content_type="text/plain")

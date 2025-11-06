@@ -51,8 +51,9 @@
                         {% if journal.cover_image %}
                             <img src="{{ journal.cover_image.url }}" alt="{{ journal.title }} Cover">
                         {% else %}
-                            <div class="placeholder-cover">
-                                <i class="fas fa-book fa-3x"></i>
+                            <div class="placeholder-cover" style="display: flex; flex-direction: column; align-items: center; justify-content: center; background-color: #006d77; color: white;">
+                                <i class="fas fa-book fa-3x mb-2"></i>
+                                <span class="fw-bold">Rasm yo'q</span>
                             </div>
                         {% endif %}
                     </div>
@@ -116,8 +117,9 @@
                                 <img src="{{ current_issue.cover_image.url }}"
                                      alt="{{ current_issue.title|default:current_issue.full_citation }}">
                             {% else %}
-                                <div class="placeholder-cover" style="background: var(--border-color);">
-                                    <i class="fas fa-book"></i>
+                                <div class="placeholder-cover" style="background: #006d77; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white;">
+                                    <i class="fas fa-book mb-2"></i>
+                                    <span class="fw-bold" style="font-size: 12px;">Rasm yo'q</span>
                                 </div>
                             {% endif %}
                         </div>
@@ -142,7 +144,7 @@
                 </div>
 
                 <div class="articles-list-journal">
-                    <h3 class="section-title">Sondagi Maqolalar</h3>
+                    <h3 class="section-title">Sondagi maqolalar</h3>
                     {% if current_articles %}
                         {% for article in current_articles %}
                             <div class="article-item-journal">
@@ -354,8 +356,9 @@
                                         <img src="{{ issue.cover_image.url }}"
                                              alt="{{ issue.title|default:issue.full_citation }}">
                                     {% else %}
-                                        <div class="placeholder-cover" style="background: var(--border-color);">
-                                            <i class="fas fa-book"></i>
+                                        <div class="placeholder-cover" style="background: #006d77; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white;">
+                                            <i class="fas fa-book mb-2"></i>
+                                            <span class="fw-bold" style="font-size: 12px;">Rasm yo'q</span>
                                         </div>
                                     {% endif %}
                                 </div>
