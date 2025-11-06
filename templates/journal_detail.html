@@ -304,7 +304,7 @@
                 <!-- Policies Navigation -->
                 <div class="policies-sub-navigation">
                     {% for policy in policies %}
-                        <button class="sub-nav-button active" data-sub-section="policy-sub-{{ policy.id }}">
+                        <button class="sub-nav-button {% if forloop.first %}active{% endif %}" data-sub-section="policy-sub-{{ policy.id }}">
                             {{ policy.title|truncatechars:25|safe }}
                         </button>
                     {% endfor %}
@@ -312,7 +312,7 @@
 
                 <!-- Policy Sub-Sections -->
                 {% for policy in policies %}
-                    <div id="policy-sub-{{ policy.id }}" class="policy-sub-section active">
+                    <div id="policy-sub-{{ policy.id }}" class="policy-sub-section {% if forloop.first %}active{% endif %}">
                         <div class="policy-card-journal">
                             <h3 class="policy-title-journal">{{ policy.title|safe }}</h3>
                             <div class="policy-content-journal">

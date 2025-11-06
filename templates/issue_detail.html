@@ -4,15 +4,16 @@
 {% block title %}{{ page_title|default:"Son - Imfaktor" }}{% endblock %}
 
 {% block meta_description %}{{ meta_description|default:"" }}{% endblock %}
-{% block meta_keywords %}{{ journal.title }}, {{ issue.volume }}, {{ issue.number }}, ilmiy jurnal, O'zbekiston ilmiy
-    nashrlari{% endblock %}
+{% block meta_keywords %}{{ journal.title }}, {{ issue.volume }}, {{ issue.number }}, ilmiy jurnal, O'zbekiston ilmiy nashrlari{% endblock %}
 
-<!-- Google Scholar Metadata -->
+{% block highwire_meta %}
+<!-- Google Scholar Metadata for Issue -->
 <meta name="citation_journal_title" content="{{ journal.title }}">
 <meta name="citation_volume" content="{{ issue.volume }}">
 <meta name="citation_issue" content="{{ issue.number }}">
 <meta name="citation_date" content="{{ issue.date_published|date:'Y/m/d' }}">
 <meta name="citation_issn" content="{{ journal.issn_print|default:journal.issn_online }}">
+{% endblock %}
 
 {% block content %}
     <div class="container mt-4 mb-5">
