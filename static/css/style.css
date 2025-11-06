@@ -8,8 +8,13 @@
 /* 1. ROOT VARIABLES */
 /* ==================== */
 :root {
-    /* Professional Color Palette - Black, White, Grey Only */
+    /* Professional Color Palette - Academic Blue Theme */
     --primary-black: #000000;
+    --primary-blue: #0056b3;
+    --primary-blue-dark: #004085;
+    --primary-blue-light: #0069d9;
+    --primary-blue-hover: #003d7a;
+
     --text-primary: #1a1a1a;
     --text-secondary: #4a4a4a;
     --text-light: #6a6a6a;
@@ -29,6 +34,7 @@
     --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
     --shadow-md: 0 2px 6px rgba(0, 0, 0, 0.1);
     --shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.12);
+    --shadow-blue: 0 2px 6px rgba(0, 86, 179, 0.15);
 
     /* Transitions */
     --transition: all 0.3s ease;
@@ -276,6 +282,31 @@ img {
     text-align: center;
 }
 
+.social-icons-footer {
+    margin-top: var(--spacing-md);
+}
+
+.social-icon-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: var(--primary-blue);
+    color: var(--bg-main);
+    font-size: 18px;
+    transition: var(--transition);
+    text-decoration: none;
+}
+
+.social-icon-link:hover {
+    background-color: var(--primary-blue-dark);
+    color: var(--bg-main);
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-blue);
+}
+
 /* ==================== */
 /* 8. BUTTONS */
 /* ==================== */
@@ -296,28 +327,30 @@ img {
 }
 
 .btn-primary {
-    background-color: var(--primary-black);
-    border-color: var(--primary-black);
+    background-color: var(--primary-blue);
+    border-color: var(--primary-blue);
     color: var(--bg-main);
 }
 
 .btn-primary:hover {
-    background-color: var(--text-primary);
-    border-color: var(--text-primary);
+    background-color: var(--primary-blue-hover);
+    border-color: var(--primary-blue-hover);
     color: var(--bg-main);
     text-decoration: none;
+    box-shadow: var(--shadow-blue);
 }
 
 .btn-outline-primary {
     background-color: var(--bg-main);
-    border-color: var(--primary-black);
-    color: var(--primary-black);
+    border-color: var(--primary-blue);
+    color: var(--primary-blue);
 }
 
 .btn-outline-primary:hover {
-    background-color: var(--bg-grey);
-    border-color: var(--text-primary);
-    color: var(--text-primary);
+    background-color: var(--primary-blue);
+    border-color: var(--primary-blue);
+    color: var(--bg-main);
+    box-shadow: var(--shadow-blue);
 }
 
 .btn-sm {
@@ -339,26 +372,32 @@ img {
     border-radius: var(--border-radius);
     transition: var(--transition);
     cursor: pointer;
+    text-decoration: none;
 }
 
 .btn-view {
-    background-color: var(--primary-black);
+    background-color: var(--primary-blue);
     color: var(--bg-main);
     border: none;
 }
 
 .btn-view:hover {
-    background-color: var(--text-primary);
+    background-color: var(--primary-blue-hover);
+    color: var(--bg-main);
+    box-shadow: var(--shadow-blue);
+    transform: translateY(-1px);
 }
 
 .btn-current {
-    background-color: var(--bg-grey);
-    color: var(--text-primary);
-    border: 1px solid var(--border-dark);
+    background-color: var(--bg-main);
+    color: var(--primary-blue);
+    border: 1px solid var(--primary-blue);
 }
 
 .btn-current:hover {
-    background-color: var(--border-color);
+    background-color: var(--primary-blue);
+    color: var(--bg-main);
+    box-shadow: var(--shadow-blue);
 }
 
 /* ==================== */
@@ -379,8 +418,8 @@ img {
 .form-control:focus,
 .form-select:focus {
     outline: none;
-    border-color: var(--primary-black);
-    box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 2px rgba(0, 86, 179, 0.1);
 }
 
 .form-control.is-invalid,
@@ -441,7 +480,7 @@ textarea.form-control {
 }
 
 .file-upload-area:hover {
-    border-color: var(--primary-black);
+    border-color: var(--primary-blue);
     background-color: var(--bg-grey);
 }
 
@@ -488,7 +527,7 @@ textarea.form-control {
     font-weight: 600;
     margin-bottom: var(--spacing-md);
     padding-bottom: var(--spacing-sm);
-    border-bottom: 3px solid var(--primary-black);
+    border-bottom: 3px solid var(--primary-blue);
     display: inline-block;
 }
 
@@ -827,27 +866,28 @@ textarea.form-control {
 /* 14. ARTICLE CARDS & GRIDS */
 /* ==================== */
 .articles-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: var(--spacing-lg);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
     margin-bottom: var(--spacing-xl);
 }
 
 .article-card {
     display: flex;
+    flex-direction: column;
     background-color: var(--bg-main);
     border-radius: var(--border-radius);
-    overflow: hidden;
+    padding: var(--spacing-lg);
     box-shadow: var(--shadow-sm);
     transition: var(--transition);
-    height: 100%;
-    cursor: pointer;
     border: 1px solid var(--border-color);
+    border-left: 4px solid var(--primary-blue);
 }
 
 .article-card:hover {
     box-shadow: var(--shadow-md);
-    transform: translateY(-2px);
+    border-left-color: var(--primary-blue-dark);
+    background-color: var(--bg-card);
 }
 
 .article-cover {
@@ -890,48 +930,41 @@ textarea.form-control {
 
 .article-info {
     flex: 1;
-    padding: var(--spacing-md);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
 }
 
 .article-title {
-    font-size: 18px;
+    font-size: 20px;
     color: var(--primary-black);
-    margin-bottom: var(--spacing-sm);
+    margin-bottom: 0;
     line-height: 1.4;
-    height: auto;
-    min-height: 30px;
-    overflow: hidden;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
     font-weight: 600;
 }
 
 .article-title a {
-    color: inherit;
+    color: var(--primary-black);
     text-decoration: none;
+    transition: var(--transition);
 }
 
 .article-title a:hover {
-    color: var(--text-secondary);
-    text-decoration: underline;
+    color: var(--primary-blue);
+    text-decoration: none;
 }
 
 .article-authors {
     display: flex;
     flex-wrap: wrap;
     gap: var(--spacing-xs);
-    margin-bottom: var(--spacing-xs);
-    color: var(--text-light);
-    font-size: var(--font-size-small);
-    height: 2em;
-    overflow: hidden;
+    color: var(--text-secondary);
+    font-size: var(--font-size-base);
+    font-weight: 500;
 }
 
 .author {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    display: inline;
 }
 
 .article-meta {
@@ -940,24 +973,23 @@ textarea.form-control {
     display: flex;
     flex-wrap: wrap;
     gap: var(--spacing-xs);
-    margin-bottom: var(--spacing-sm);
 }
 
 .article-meta-small {
-    font-size: var(--font-size-base);
+    font-size: var(--font-size-small);
     color: var(--text-light);
-    margin-top: var(--spacing-xs);
-    line-height: 1.4;
+    line-height: 1.5;
 }
 
 .article-meta-small .journal-info {
-    font-weight: 500;
-    font-size: var(--font-size-base);
-    color: var(--text-primary);
+    font-weight: 400;
+    font-size: var(--font-size-small);
+    color: var(--text-secondary);
 }
 
 .article-meta-small .page-range {
     font-style: italic;
+    color: var(--text-light);
 }
 
 .article-excerpt {
@@ -1030,15 +1062,16 @@ textarea.form-control {
     font-size: var(--font-size-base);
     box-shadow: var(--shadow-md);
     z-index: 999;
-    background-color: var(--primary-black);
+    background-color: var(--primary-blue);
     color: var(--bg-main);
     transition: var(--transition);
     border: none;
 }
 
 #back-to-top:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-lg);
+    background-color: var(--primary-blue-dark);
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-blue);
 }
 
 /* ==================== */
@@ -1441,29 +1474,39 @@ textarea.form-control {
     border-radius: var(--border-radius);
     padding: var(--spacing-md);
     margin-bottom: var(--spacing-md);
-    border-left: 4px solid var(--primary-black);
+    border-left: 4px solid var(--primary-blue);
     border: 1px solid var(--border-color);
+    transition: var(--transition);
+}
+
+.current-issue-card:hover {
+    border-left-color: var(--primary-blue-dark);
+    box-shadow: var(--shadow-md);
 }
 
 .issue-header-journal {
     display: grid;
-    grid-template-columns: 80px 1fr;
-    gap: var(--spacing-md);
-    align-items: flex-start;
+    grid-template-columns: 120px 1fr;
+    gap: var(--spacing-lg);
+    align-items: start;
 }
 
 .issue-cover-small {
-    width: 80px;
-    height: 100px;
+    width: 120px;
+    height: auto;
+    min-height: 150px;
+    max-height: 180px;
     border-radius: var(--border-radius);
     overflow: hidden;
     border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-sm);
 }
 
 .issue-cover-small img {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    display: block;
 }
 
 .issue-info-journal h3 {
@@ -1609,7 +1652,7 @@ textarea.form-control {
     margin-top: var(--spacing-md);
     padding: var(--spacing-md);
     background-color: var(--bg-grey);
-    border-left: 3px solid var(--primary-black);
+    border-left: 3px solid var(--primary-blue);
 }
 
 .policy-meta {
@@ -1628,7 +1671,7 @@ textarea.form-control {
     background-color: var(--bg-card);
     padding: var(--spacing-md);
     border-radius: var(--border-radius);
-    border-left: 3px solid var(--primary-black);
+    border-left: 3px solid var(--primary-blue);
     border: 1px solid var(--border-color);
 }
 
@@ -1657,11 +1700,11 @@ textarea.form-control {
 }
 
 .telegram-contact {
-    border-left: 3px solid var(--primary-black);
+    border-left: 3px solid var(--primary-blue);
 }
 
 .submit-btn {
-    background-color: var(--primary-black);
+    background-color: var(--primary-blue);
     border: none;
     padding: var(--spacing-sm) var(--spacing-lg);
     border-radius: var(--border-radius);
@@ -1670,8 +1713,9 @@ textarea.form-control {
 }
 
 .submit-btn:hover {
-    background-color: var(--text-primary);
+    background-color: var(--primary-blue-hover);
     transform: translateY(-1px);
+    box-shadow: var(--shadow-blue);
 }
 
 .alert-messages {
