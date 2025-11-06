@@ -1779,7 +1779,7 @@ textarea.form-control {
 }
 
 .article-detail-title {
-    font-size: 32px;
+    font-size: 26px;
     color: var(--primary-black);
     line-height: 1.3;
     margin-bottom: var(--spacing-lg);
@@ -1817,7 +1817,7 @@ textarea.form-control {
 }
 
 .article-title {
-    font-size: 28px;
+    font-size: 22px;
     color: var(--primary-black);
     line-height: 1.3;
     margin-bottom: var(--spacing-md);
