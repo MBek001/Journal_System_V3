@@ -428,7 +428,7 @@ def sitemap_view(request):
     from django.urls import reverse
 
     # Get all articles, journals, authors
-    articles = Article.objects.filter(status='published').select_related('issue__journal')
+    articles = Article.objects.filter(is_published=True).select_related('issue__journal')
     journals = Journal.objects.all()
     authors = Author.objects.all()
 
