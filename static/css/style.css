@@ -1609,13 +1609,14 @@ textarea.form-control {
 
 .sub-nav-button:hover {
     background-color: var(--bg-grey);
-    border-color: var(--primary-black);
+    border-color: var(--primary-blue);
+    color: var(--primary-blue);
 }
 
 .sub-nav-button.active {
-    background-color: var(--primary-black);
+    background-color: var(--primary-blue);
     color: var(--bg-main);
-    border-color: var(--primary-black);
+    border-color: var(--primary-blue);
 }
 
 .policy-sub-section {
@@ -1791,6 +1792,20 @@ textarea.form-control {
     font-size: var(--font-size-large);
     color: var(--text-secondary);
     line-height: 1.6;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+/* Center authors when there are 1-2 authors */
+.article-authors-list:has(.author-item-detail:nth-child(1):nth-last-child(1)),
+.article-authors-list:has(.author-item-detail:nth-child(2):nth-last-child(1)) {
+    justify-content: center;
+}
+
+/* Normal left alignment for 3+ authors */
+.article-authors-list:has(.author-item-detail:nth-child(3)) {
+    justify-content: flex-start;
 }
 
 .author-item-detail {
