@@ -16,6 +16,20 @@
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="{{ request.build_absolute_uri }}">
 
+    <!-- Open Graph Meta Tags (for social media sharing) -->
+    <meta property="og:title" content="{% block og_title %}{{ request.resolver_match.url_name|title }} - Imfaktor{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}O'zbekiston ilmiy jurnallari platformasi - ilmiy bilimlarni targ'ib qilish va rivojlantirish{% endblock %}">
+    <meta property="og:type" content="{% block og_type %}website{% endblock %}">
+    <meta property="og:url" content="{{ request.build_absolute_uri }}">
+    <meta property="og:image" content="{% block og_image %}{{ request.scheme }}://{{ request.get_host }}{% static 'images/logocha.png' %}{% endblock %}">
+    <meta property="og:site_name" content="Imfaktor">
+    <meta property="og:locale" content="uz_UZ">
+
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{% block twitter_title %}Imfaktor - Academic Journal Platform{% endblock %}">
+    <meta name="twitter:description" content="{% block twitter_description %}O'zbekiston ilmiy jurnallari platformasi{% endblock %}">
+    <meta name="twitter:image" content="{% block twitter_image %}{{ request.scheme }}://{{ request.get_host }}{% static 'images/logocha.png' %}{% endblock %}">
 
     <!-- HighWire Press Tags (Google Scholar uchun) -->
     {% block highwire_meta %}{% endblock %}
