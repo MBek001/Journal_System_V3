@@ -36,7 +36,7 @@ pip install -r requirements.txt
 Create `.env` file in project root (see `.env.example`):
 
 ```bash
-cp .env.example .env
+cp .env .env
 ```
 
 Edit `.env` with your production values:
