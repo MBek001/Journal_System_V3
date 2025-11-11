@@ -1350,11 +1350,38 @@ textarea.form-control {
 .journal-hero-cover .placeholder-cover {
     width: 100%;
     height: 100%;
-    background-color: var(--bg-card);
+    background-color: #006d77;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    color: var(--text-light);
+    color: white;
+    border-radius: 8px;
+}
+
+.placeholder-cover {
+    background-color: #006d77;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    border-radius: 8px;
+}
+
+.placeholder-cover i {
+    margin-bottom: 0.5rem;
+}
+
+.placeholder-cover span {
+    font-weight: bold;
+    font-size: 12px;
+}
+
+/* Issue cover placeholders */
+.issue-cover-small .placeholder-cover {
+    background: #006d77;
+    min-height: 150px;
 }
 
 .journal-hero-info h1 {
