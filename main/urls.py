@@ -1,5 +1,5 @@
 from django.urls import path
-from . import views
+from . import views, admin_views
 
 urlpatterns = [
     path('', views.home_view, name='home'),
@@ -13,7 +13,7 @@ urlpatterns = [
     path('allauthors', views.authors_list, name='allauthors'),
     path('tt', views.test_diploma_view, name='testing'),
 
-    # SEO URLs
-    path('sitemap.xml', views.sitemap_view, name='sitemap'),
-    path('robots.txt', views.robots_txt_view, name='robots'),
+    # SEO URLs - Using advanced versions with Issues support and SiteSEO integration
+    path('sitemap.xml', admin_views.generate_sitemap, name='sitemap'),
+    path('robots.txt', admin_views.robots_txt, name='robots'),
 ]
